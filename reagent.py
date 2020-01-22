@@ -41,7 +41,11 @@ if __name__ == '__main__':
             logging.error('Failed to initialize run: %s' % e)
             exit(1)
     elif subcommand == 'run':
-        pass
+        try:
+            reagent_run(args.skip_preprocessing)
+        except Exception as e:
+            logging.error('Failed to complete run: %s' % e)
+            exit(1)
     else:
         logging.error('Unknown subcommand %s' % subcommand)
         exit(1)

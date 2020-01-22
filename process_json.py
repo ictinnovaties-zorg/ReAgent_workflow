@@ -32,6 +32,11 @@ def replace_value_in_dict(input_dict, replace_key, new_value):
                 output_dict[k] = old_value
     return output_dict
 
+def replace_multiple_value_in_dict(input_dict, replace_dict):
+    for k, v in replace_dict.items():
+        input_dict = replace_value_in_dict(input_dict, k, v)
+    return input_dict
+
 if __name__ == '__main__':
 
     def run_test(input_dict, key, new_value):

@@ -1,20 +1,30 @@
-# ReAgent
-## Ophalen
-Het ophalen van ReAgent doe je door het repo met Git te clonen:
+# What is this repo
+This repo contains a set of common tasks that you need in order to run [ReAgent](https://reagent.ai/) effectively from the command line. This script is useful as this is not straightforward using ReAgent out of the box. 
+
+A number of parts of a ReAgent workflow steps are provided:
+
+- `init` initialize a ReAgent run
+- `run` run ReAgent, with or without preprocessing and allowing you to change the settings of the workflow (e.g. learning rate)
+
+The rest of this introduction will show how to setup ReAgent in order to work effectively with this script. 
+
+# Setting up ReAgent
+By and large you can following the [installation guide](https://reagent.ai/installation.html#installation) provided with ReAgent. I do present a number of additional steps below. 
+
+## Getting ReAgent
+The best way to get ReAgent is to simply clone the git repo:
 
     git clone --recurse-submodules https://github.com/facebookresearch/ReAgent.git
 
-Het kan zijn dat er een probleem optreed met de submodule, [hier staat de oplossing](https://github.com/facebookresearch/ReAgent/issues/204). 
+If you run into a problem with one of the submodules not loading properly, [you can find the solution here](https://github.com/facebookresearch/ReAgent/issues/204). 
 
-## Installatie
-Voor de ReAgent installatie heb ik deels [de instructies](https://github.com/facebookresearch/ReAgent/blob/master/docs/installation.rst) gevolgd. Ik heb wel een aantal zaken anders aangepakt:
-
-- Ik heb een conda environemnt (ReAgent) gemaakt voor het installeren van de dependencies. 
+## Installation tweaks
+- I created a conda environment for ReAgent, although you could also use `virtualenv` if you don't run Anaconda as I do. Before following the install guide, create and activate the conda env:
 
         conda create --name ReAgent
         conda activate ReAgent
     
-    hierna kun je de requirements installeren via `conda install`. 
+    Once this environment is activated, you can run commands such as `conda install` or `pip install` to install all the required software. 
 - De `export` commandos moeten in je aan het conda env toevoegen. Hoe je dit doet [staat hier](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#macos-and-linux), de locatie van het env is bijvoorbeeld `/home/paul/anaconda3/envs/ReAgent`. 
 
     - De `JAVA_HOME` heeft standaard al een waarde. Voorlopig laat ik die even staan. 

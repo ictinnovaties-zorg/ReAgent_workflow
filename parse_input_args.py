@@ -19,7 +19,11 @@ def parse_init(args):
     return init_args
 
 def parse_run(args):
-    print('Parsing for run')
+    parser = argparse.ArgumentParser(description='Initialize new ReAgent run')
+    parser.add_argument('--skip-preprocessing', help='Skip preprocessing, and immediately launch the run ', action='store_true')
+    run_args = parser.parse_args(args)
+
+    return run_args
 
 subcommand_mapping = {'init': parse_init, 'run': parse_run}
 
