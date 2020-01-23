@@ -1,0 +1,6 @@
+{
+  "preprocessing": {
+     "ds_value": "2019-01-01",
+     "actions": ["0", "1"] 
+  }
+}
