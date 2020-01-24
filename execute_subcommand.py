@@ -266,6 +266,8 @@ def reagent_run(run_settings, skip_preprocess):
       mean and stdev to 0 and 1 respectively. 
     - Allow setting of templates. Right now we can change any params we want, but that could
       clutter the input run_settings quite a bit
+    - Add evaluation component. This needs to be custom for each type of data, bit harder
+      to implement generically. 
     '''
 
     # Perform a set of sanity checks before moving on. A failed check will throw an exception

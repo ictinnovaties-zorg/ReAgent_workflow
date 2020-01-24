@@ -24,7 +24,7 @@ If you run into a problem with one of the submodules not loading properly, [you 
         conda create --name ReAgent
         conda activate ReAgent
     
-    Once this environment is activated, you can run commands such as `conda install` or `pip install` to install all the required software. 
+    Once this environment is activated, you can run commands such as `conda install` or `pip install` to install all the required software. Note that before running ReAgent, you always need to activate the environment. 
 
 - I installed pytorch using `conda`:
 
@@ -44,49 +44,77 @@ If you run into a problem with one of the submodules not loading properly, [you 
 
     to your `~/.bashrc` file.
 
+## Installing ReAgent scripts
+In order to get the scripts working you need to:
 
-## ReAgent gebruiken
+- Clone the repo
+- Add the location of the cloned repo to your `$PATH` environment variable. 
+
+## Running ReAgent
 Setting up a new ReAgent run is done using the `init` subcommand:
 
-    reagent init run_name bla.json
+    reagent.py init run_name bla.json
 
 where:
 
 - `run_name` the name of the run, this is also the directory where the run will be stored. 
 - `bla.json` the input data for the run. See the [ReAgent usage page](https://reagent.ai/usage.html#offline-rl-training-batch-rl) for the needed format. 
 
-Deze cloned de versie van ReAgent die onder de `REAGENT_LOCATION` environment variable staat. Ook wordt het preprocessing package gebouwd. De aanname is hier dat je de installatie van ReAgent al hebt gedaan, dus Spark en PyTorch staan al geinstalleerd. 
+This clones the repository in `REAGENT_LOCATION`, copies in the training data and builds the preprocessing JAR file using Maven. Finally, it copies the run log into the directory created by git. This log, `run_activity.log`, contains all the activity that took place in the run. 
 
-Als je een nieuwe run klaar hebt staan kun je daadwerkelijk de run gaan starten: 
+After setting up an new run, you can start training models:
 
-    reagent run --agent=dqn --base-run-config=ml/rl/etc/config.json --skip-preprocessing --[param-name]='valid json'
+    reagent run --skip-preprocessing settings_config.json 
 
-waarbij:
+For now this runs a discrete action DQN as is used in the example on the ReAgent site. 
 
-- `--agent` het soort agent wat je gaat draaien. Dit bepaald welke config file als uitgangspunt voor de run gaat dienen. 
-- `--base-run-config` een alternatief voor `--agent`. Hierbij geef je zelf op welke config file als uitgangspunt dient voor de run. Als je deze zet, dan wordt `--agent` genegeerd. 
-- `--skip-preprocessing` sla het preprocess gedeelte wat gebruik maakt van Spark over. Dit is handig als je alleen het trainen van het model opnieuw wil doen. 
-- `--[param-name]='valid json'` van alle toplevel elementen die in het config bestand staan kun je alternatieve waardes opgeven. Dit is in de vorm van valide JSON. Als je bijvoorbeeld kijkt naar het standaard DQN config bestand (`ml/rl/workflow/sample_configs/discrete_action/dqn_example.json`), dan kun je de `learning_rate` op deze manier aanpassen:
+where:
 
-        --training='{"learning_rate": 0.05}'
+- `--skip-preprocessing` skip processing and directly start training a model. You can use this to repeatedly retrain a model with the need of having to rerun the preprocessing (generate timeline data, generate normalisation params). 
+- `settings_config.json` settings file that enables you to change preprocessing and training settings in the run. For more details see the section below. 
 
-    let op dat de andere elementen in `training` niet aangepast worden.  
+The resulting run contains a number of of key files that tell you about the settings and the results:
 
+- `outputs`
+- `current_etc` etc
+- etc
 
-Run bestaat uit:
+## ReAgent run settings file
+The following is an example of a settings file:
 
-- Oude outputs opruimen: oude spark tussenproducten, oude outputs. 
+    {
+      "preprocessing": {
+         "ds_value": "2019-01-01",
+         "actions": ["0", "1"] 
+      },
+      "training": {
+         "epochs": 99,
+         "learning_rate": 0.1
+      }
+    }
 
-    reagent tensorboard
+it contains two sections: `preprocessing` and `training`. 
 
-### REAGENT_LOCATION environment variable instellen
-In Bash (ubuntu) doe je dit door:
+- The first allows you to change preprocessing settings in the `preprocessing` template (`ml/rl/workflow/sample_configs/discrete_action/timeline.json`). The two settings, `ds_value` and `actions`, are things you probably need to change for your run.  
+- The second allows you to change settings for the training phase. Any setting 
 
+Note that it does not matter how deeply nested any of the settings are, the replacement algorithm will recursively go through the entire config tree and replace the value. For example, `learning_rate` is actually one level deep (`training > learning_rate`), but there is no need to mimic this depth. Simply pass `learning_rate` and the script will do the rest. 
 
-toe te voegen aan je `.bashrc`.
+## Full run example
+First we set up an new run and perform one training run:
 
-### Logging
-ReAgent slaat alle commando's op die je runt. Op die manier kun je later zien wat er allemaal in volgorde gebeurt is met een repo.
+    reagent.py init cartpole_run generated_cartpole_data.json --delete-old-run 
+    cp example_full_run_config.json cartpole_run
+    cd cartpole_run
+    reagent.py run example_full_run_config.json
+
+Note that `example_full_run_config.json` and `generated_cartpole_data.json` are included in this repo in the `example_data` subdirectory.
+
+If we want to run the exact same run, but with a learning rate of `0.001`, you can edit the config file and:
+
+    reagent.py run edited_config.json --skip-preprocessing
+
+This will not run the preprocessing, and retrain the model with the new learning rate. 
 
 # Notes
 De `export` commandos moeten in je aan het conda env toevoegen. Hoe je dit doet [staat hier](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#macos-and-linux), de locatie van het env is bijvoorbeeld `/home/paul/anaconda3/envs/ReAgent`. 
