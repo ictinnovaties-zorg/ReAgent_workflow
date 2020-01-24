@@ -64,15 +64,26 @@ This clones the repository in `REAGENT_LOCATION`, copies in the training data an
 
 After setting up an new run, you can start training models:
 
-    reagent run --skip-preprocessing settings_config.json 
+    reagent run --skip-preprocessing -r settings_config.json 
 
 For now this runs a discrete action DQN as is used in the example on the ReAgent site. 
 
-where:
+Below I describe the basic working of `reagent.py run`, the full detailed technical documentation can be had via `reagent.py run -h`. 
 
 - `--skip-preprocessing` skip processing and directly start training a model. You can use this to repeatedly retrain a model with the need of having to rerun the preprocessing (generate timeline data, generate normalisation params). 
-- `settings_config.json` settings file that enables you to change preprocessing and training settings in the run. For more details see the section below. 
+- `-r settings_config.json` optional settings file that enables you to change preprocessing and training settings in the run. For more details see the section below. 
 
+In addition to the settings file, `reagent.py` also allows you to pass settings on the command line. This is done vvia the `--ts` and `--ps` for training settings and preprocessing settings respectively. For example:
+
+    reagent.py run -r settings_config.json --ts learning_rate 0.0001
+
+reads the settings from the file, but replaces the learning rate by `0.0001`. You case pass multiple values by simply calling `--ts` multiple times
+
+    reagent.py run -r settings_config.json --ts learning_rate 0.0001 --ts epochs 300
+
+will read the file and replace learning rate and number of epochs. **NOTE** you can pass settings via `--ts`and `--ps` that are not in `settings_config.json`. You can even omit the settings file completely and pass everything via the commandline.  
+
+## Contents of a run
 The resulting run contains a number of of key files that tell you about the settings and the results:
 
 - `outputs`
@@ -106,15 +117,19 @@ First we set up an new run and perform one training run:
     reagent.py init cartpole_run generated_cartpole_data.json --delete-old-run 
     cp example_full_run_config.json cartpole_run
     cd cartpole_run
-    reagent.py run example_full_run_config.json
+    reagent.py run -r example_full_run_config.json
 
 Note that `example_full_run_config.json` and `generated_cartpole_data.json` are included in this repo in the `example_data` subdirectory.
 
 If we want to run the exact same run, but with a learning rate of `0.001`, you can edit the config file and:
 
-    reagent.py run edited_config.json --skip-preprocessing
+    reagent.py run -r edited_config.json --skip-preprocessing
 
-This will not run the preprocessing, and retrain the model with the new learning rate. 
+This will not run the preprocessing, and retrain the model with the new learning rate. Alternatively, you could have not edited the file, but passed the new value via the command line:
+
+    reagent.py run -r example_full_run_config.json --ts learning_rate 0.001
+
+which yields the exact same result. 
 
 # Notes
 De `export` commandos moeten in je aan het conda env toevoegen. Hoe je dit doet [staat hier](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#macos-and-linux), de locatie van het env is bijvoorbeeld `/home/paul/anaconda3/envs/ReAgent`. 

@@ -20,10 +20,12 @@ def parse_init(args):
     return init_args
 
 def parse_run(args):
-    parser = argparse.ArgumentParser(description='Initialize new ReAgent run')
-    parser.add_argument('run_settings', help='Path to a settings file containing the global settings for this run')
-    parser.add_argument('--skip-preprocessing', help='Skip preprocessing, and immediately launch the run ', action='store_true')
-    parser.add_argument('--debug', help='Do not buffer the Python errors, useful during development', action='store_true')
+    parser = argparse.ArgumentParser(description='Run ReAgent')
+    parser.add_argument('-r', '--run_settings', help='Path to a settings file containing the global settings for this run')
+    parser.add_argument('-s', '--skip-preprocessing', help='Skip preprocessing, and immediately launch the run ', action='store_true')
+    parser.add_argument('-d', '--debug', help='Do not buffer the Python errors, useful during development', action='store_true')
+    parser.add_argument('--ps', help='Pass preprocessing setting', nargs='+', action='append', metavar=('key','value'))
+    parser.add_argument('--ts', help='Pass traininging settings', nargs='+', action='append', metavar=('key','value'))
     run_args = parser.parse_args(args)
 
     return run_args

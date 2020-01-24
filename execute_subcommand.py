@@ -58,7 +58,7 @@ def is_reagent_run():
         return False
     return True
 
-def check_run():
+def check_run(skip_preprocess):
     '''
     Perform a number of sanity checks on the run
 
@@ -79,6 +79,12 @@ def check_run():
         ds_values = json_normalize(raw_training_first100)['ds']
         if len(ds_values.unique()) > 1:
             raise ValueError('INVALID RUN: Found multiple different ds values in the first 100 lines of data, not sure how to handle this')
+    if skip_preprocess:
+        if not os.path.isfile('training_data/state_features_norm.json') or \
+           not os.path.isfile('training_data/training_data.json') or \
+           not os.path.isfile('training_data/evaluation_data.json'):
+               raise ValueError('INVALID RUN: some files missing to start run without running preprocessing')
+
 
 def update_timeline_config(timeline_config, preprocessing_setting):
     '''
@@ -163,7 +169,6 @@ def cleanup_preprocessing_artifacts():
     remove_dir_if_exists('spark_raw_timeline_evaluation')
     remove_dir_if_exists('training_data')
     # - Delete previous spark artifacts
-    #rm -Rf spark-warehouse derby.log metastore_db preprocessing/spark-warehouse preprocessing/metastore_db preprocessing/derby.log
     remove_dir_if_exists('spark-warehouse')
     remove_file_if_exists('derby.log')
     remove_dir_if_exists('metastore_db')
@@ -172,7 +177,7 @@ def cleanup_preprocessing_artifacts():
     remove_file_if_exists('preprocessing/derby.log')
 
 def cleanup_training_artifacts():
-    shutil.rmtree('outputs', ignore_errors=True)
+    remove_dir_if_exists('outputs')
 
 def read_timeline_config_template():
     logging.info('Reading timeline preprocessing config template from ml/rl/workflow/sample_configs/discrete_action/timeline.json')
@@ -271,15 +276,12 @@ def reagent_run(run_settings, skip_preprocess):
     '''
 
     # Perform a set of sanity checks before moving on. A failed check will throw an exception
-    check_run()
+    check_run(skip_preprocess)
 
     logging.info('========= START OF RUN ===============')
 
     # All cleanup is done before all other actions. This is the only way I could get a 
     # stable run. 
-
-    # REMOVE!!
-    skip_preprocess = True
 
     if not skip_preprocess:
         cleanup_preprocessing_artifacts()
