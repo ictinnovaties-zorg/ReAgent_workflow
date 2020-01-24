@@ -146,80 +146,154 @@ def update_timeline_config(timeline_config, preprocessing_setting):
                     'actions': preprocessing_setting['actions']}
     return replace_multiple_value_in_dict(timeline_config, replace_dict)
 
+def remove_dir_if_exists(path):
+    if os.path.isdir(path):
+        logging.info('Found directory %s, removing...' % path)
+        shutil.rmtree(path)
+
+def remove_file_if_exists(path):
+    if os.path.isfile(path):
+        logging.info('Found file %s, removing...' % path)
+        os.remove(path)
+
+def cleanup_preprocessing_artifacts():
+    logging.info('PREPROCESS: remove previously generated timeline data (training and eval)')
+    # Note that we ignore any errors, primarily due to the directories not existing. 
+    remove_dir_if_exists('spark_raw_timeline_training')
+    remove_dir_if_exists('spark_raw_timeline_evaluation')
+    remove_dir_if_exists('training_data')
+    # - Delete previous spark artifacts
+    #rm -Rf spark-warehouse derby.log metastore_db preprocessing/spark-warehouse preprocessing/metastore_db preprocessing/derby.log
+    remove_dir_if_exists('spark-warehouse')
+    remove_file_if_exists('derby.log')
+    remove_dir_if_exists('metastore_db')
+    remove_dir_if_exists('preprocessing/spark-warehouse')
+    remove_dir_if_exists('preprocessing/metastore_db')
+    remove_file_if_exists('preprocessing/derby.log')
+
+def cleanup_training_artifacts():
+    shutil.rmtree('outputs', ignore_errors=True)
+
+def read_timeline_config_template():
+    logging.info('Reading timeline preprocessing config template from ml/rl/workflow/sample_configs/discrete_action/timeline.json')
+    with open('ml/rl/workflow/sample_configs/discrete_action/timeline.json') as timeline_config_json:
+        timeline_config = json.load(timeline_config_json)
+    return timeline_config
+
+def generate_timeline_data(preprocessing_settings, timeline_config_template):
+    timeline_config = update_timeline_config(timeline_config_template, preprocessing_settings)
+
+    logging.info('Timeline preprocessing settings saved in current_timeline_config.json.')
+    # Showing the settings in the log file
+    for line in json.dumps(timeline_config, indent=2).split('\n'):
+        logging.info(line)
+    with open("current_timeline_config.json", "w") as write_file:
+        json.dump(timeline_config, write_file, indent=2)
+
+    logging.info('Calling Spark to generate timeline data')
+    logged_check_call(['spark-submit', 
+           '--class', 'com.facebook.spark.rl.Preprocessor', 'preprocessing/target/rl-preprocessing-1.1.jar',
+           '%s' % json.dumps(timeline_config)])
+    logging.info('Success generating timeline data')
+
+    os.mkdir('training_data')
+    # - aggregate spark results into a single file (note that this does not seem to be needed in my case).
+    #   dump the result in `training_data/training_data.json` and `training_data/evaluation_data.json`.
+    training_parts = glob.glob('spark_raw_timeline_training/part*')
+    evaluation_parts = glob.glob('spark_raw_timeline_evaluation/part*')
+    if (len(training_parts) > 1) or (len(evaluation_parts) > 1):
+        # For now spark always drops 1 file, so I chose not to implement this yet. See:
+        #     https://stackoverflow.com/questions/24528278/stream-multiple-files-into-a-readable-object-in-python
+        # for a Python based way of doing this. 
+        logging.error('Found multiple part files from Spark, not yet implemented')
+        raise ValueError
+    else:
+        logging.info('Copying Spark part files to training and evaluation data')
+        shutil.copyfile(training_parts[0], 'training_data/training_data.json')
+        shutil.copyfile(evaluation_parts[0], 'training_data/evaluation_data.json')
+
+def read_normalisation_training_config_template():
+    logging.info('Reading normalisation preprocessing and training config template from ml/rl/workflow/sample_configs/discrete_action/dqn_example.json')
+    with open('ml/rl/workflow/sample_configs/discrete_action/dqn_example.json') as config_json:
+        config = json.load(config_json)
+    return config
+
+def generate_normalisation_params(config_template):
+    # Change some settings in the config template
+    # NOTE this is the same template as used for training, but I don't think we need
+    # to replace all settings such as learning rate. 
+    #
+    # Some settings to discuss are:
+    # -  "training_data_path": "training_data/cartpole_discrete_timeline.json",
+    #      --> needs to be set to "training_data/training_data.json"
+    # -  "eval_data_path": "training_data/cartpole_discrete_timeline_eval.json",
+    #      --> needs to be set to "training_data/training_data.json"
+    # -  "state_norm_data_path": "training_data/state_features_norm.json",
+    #      --> Fine
+    # -  "model_output_path": "outputs/",
+    #      ---> Fine
+    # -  "norm_params": {
+    #     "output_dir": "training_data/",
+    #     "cols_to_norm": [
+    #       "state_features"
+    #     ],
+    #       --> Settings seem to be OK
+    normalisation_config = replace_multiple_value_in_dict(config_template, {'training_data_path': "training_data/training_data.json", 
+                                                                            "eval_data_path": "training_data/evaluation_data.json"})
+    logging.info('Normalisation preprocessing settings saved in current_normalisation_config.json.')
+    # Showing the settings in the log file
+    for line in json.dumps(normalisation_config, indent=2).split('\n'):
+        logging.info(line)
+    with open("current_normalisation_config.json", "w") as write_file:
+        json.dump(normalisation_config, write_file, indent=2)
+
+    logging.info('Running normalisation')
+    logged_check_call(['python', 'ml/rl/workflow/create_normalization_metadata.py', '-p', 'current_normalisation_config.json'])
+
+def train_model(config_template):
+    pass
+
 def reagent_run(run_settings, skip_preprocess):
     '''
     Start a reagent run. 
 
     TODO:
     - Add check for spark and provide meaningful error message
-    - Add check to see if we are in a valid run folder
     - Expand docstring
     - Find out what the 'tableSample' argument does
-    - Set a number os settings program wide, such as:
+    - Set a number of settings program wide instead of hardcoding, such as:
         - The name of the raw data directory
         - etc
+    - Add option to disable normalisation. This can supposedly be done by setting the 
+      mean and stdev to 0 and 1 respectively. 
+    - Allow setting of templates. Right now we can change any params we want, but that could
+      clutter the input run_settings quite a bit
     '''
 
     # Perform a set of sanity checks before moving on. A failed check will throw an exception
     check_run()
 
     logging.info('========= START OF RUN ===============')
-    # From the tutorial
-    # Reset the environment
-    # - IF NOT skip_preprocess
-    #    - Delete generated timeline data
+
+    # All cleanup is done before all other actions. This is the only way I could get a 
+    # stable run. 
     if not skip_preprocess:
-        logging.info('PREPROCESS: remove previously generated timeline data (training and eval)')
-        # Note that we ignore any errors, primarily due to the directories not existing. 
-        shutil.rmtree('spark_raw_timeline_training', ignore_errors=True)
-        shutil.rmtree('spark_raw_timeline_evaluation', ignore_errors=True)
-        shutil.rmtree('training_data', ignore_errors=True)
-        # - Delete previous spark artifacts
-        #rm -Rf spark-warehouse derby.log metastore_db preprocessing/spark-warehouse preprocessing/metastore_db preprocessing/derby.log
-    #
-    # - Delete previous outputs
-    # Create timeline stuff
-    #   + configure timeline json
+        cleanup_preprocessing_artifacts()
+    cleanup_training_artifacts()
+
+    timeline_config_template = read_timeline_config_template()
+    training_normalisation_config_template = read_normalisation_training_config_template()
+
     if not skip_preprocess:
-        logging.info('Reading timeline preprocessing config template from ml/rl/workflow/sample_configs/discrete_action/timeline.json')
-        with open('ml/rl/workflow/sample_configs/discrete_action/timeline.json') as timeline_config_json:
-            timeline_config = json.load(timeline_config_json)
-        timeline_config = update_timeline_config(timeline_config, run_settings['preprocessing'])
-
-        logging.info('Timeline preprocessing settings saved in current_timeline_config.json.')
-        # Showing the settings in the log file
-        for line in json.dumps(timeline_config, indent=2).split('\n'):
-            logging.info(line)
-        with open("current_timeline_config.json", "w") as write_file:
-            json.dump(timeline_config, write_file, indent=2)
-
-        logging.info('Calling Spark to generate timeline data')
-        logged_check_call(['spark-submit', 
-               '--class', 'com.facebook.spark.rl.Preprocessor', 'preprocessing/target/rl-preprocessing-1.1.jar',
-               '%s' % json.dumps(timeline_config)])
-        logging.info('Success generating timeline data')
-
-        os.mkdir('training_data')
-        # - aggregate spark results into a single file (note that this does not seem to be needed in my case).
-        #   dump the result in `training_data/training_data.json` and `training_data/evaluation_data.json`.
-        training_parts = glob.glob('spark_raw_timeline_training/part*')
-        evaluation_parts = glob.glob('spark_raw_timeline_evaluation/part*')
-        if (len(training_parts) > 1) or (len(evaluation_parts) > 1):
-            # For now spark always drops 1 file, so I chose not to implement this yet. See:
-            #     https://stackoverflow.com/questions/24528278/stream-multiple-files-into-a-readable-object-in-python
-            # for a Python based way of doing this. 
-            logging.error('Found multiple part files from Spark, not yet implemented')
-            raise ValueError
-        else:
-            logging.info('Copying Spark part files to training and evaluation data')
-            shutil.copyfile(training_parts[0], 'training_data/training_data.json')
-            shutil.copyfile(evaluation_parts[0], 'training_data/evaluation_data.json')
+        generate_timeline_data(run_settings["preprocessing"], timeline_config_template)
 
         #   + Create normalisation params
+        generate_normalisation_params(training_normalisation_config_template)
     #
     # Train model
+    train_model(training_normalisation_config_template)
     #
     # Evaluate model
-    logging.info('Done with run!')
+    logging.info('=========== END OF RUN ===============')
 
 
