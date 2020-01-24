@@ -8,6 +8,48 @@ A number of parts of a ReAgent workflow steps are provided:
 
 The rest of this introduction will show how to setup ReAgent in order to work effectively with this script. 
 
+# TL;DR
+Short example run:
+
+    reagent.py init cartpole_run generated_cartpole_data.json --delete-old-run 
+    cp example_full_run_config.json cartpole_run
+    cd cartpole_run
+    reagent.py run -r example_full_run_config.json
+
+Help for init:
+
+    usage: reagent.py [-h] [--delete-old-run] [--debug] name training_data
+    
+    Initialize new ReAgent run
+    
+    positional arguments:
+      name              Name of the run
+      training_data     Training data used for the run
+    
+    optional arguments:
+      -h, --help        show this help message and exit
+      --delete-old-run  Delete the run in `name` if it already exists.
+      --debug           Do not buffer the Python errors, useful during development
+
+Help for run:
+
+    usage: reagent.py [-h] [-r RUN_SETTINGS] [-s] [-d] [--ps key [value ...]]
+                      [--ts key [value ...]]
+    
+    Run ReAgent
+    
+    optional arguments:
+      -h, --help            show this help message and exit
+      -r RUN_SETTINGS, --run_settings RUN_SETTINGS
+                            Path to a settings file containing the global settings
+                            for this run
+      -s, --skip-preprocessing
+                            Skip preprocessing, and immediately launch the run
+      -d, --debug           Do not buffer the Python errors, useful during
+                            development
+      --ps key [value ...]  Pass preprocessing setting
+      --ts key [value ...]  Pass traininging settings
+
 # Setting up ReAgent
 By and large you can following the [installation guide](https://reagent.ai/installation.html#installation) provided with ReAgent. I do present a number of additional steps below. 
 
