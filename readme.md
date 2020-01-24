@@ -25,37 +25,35 @@ If you run into a problem with one of the submodules not loading properly, [you 
         conda activate ReAgent
     
     Once this environment is activated, you can run commands such as `conda install` or `pip install` to install all the required software. 
-- De `export` commandos moeten in je aan het conda env toevoegen. Hoe je dit doet [staat hier](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#macos-and-linux), de locatie van het env is bijvoorbeeld `/home/paul/anaconda3/envs/ReAgent`. 
 
-    - De `JAVA_HOME` heeft standaard al een waarde. Voorlopig laat ik die even staan. 
-
-- Het installeren van PyTorch heb ik via conda gedaan:
+- I installed pytorch using `conda`:
 
         conda install pytorch torchvision cudatoolkit=10.1 -c pytorch 
 
-- Ik heb de scripts in de `ml/rl/workflow` directory aan `$PATH` toegevoegd. Dan kan ik overal op de console deze scripts starten. 
-- In de installatie handleiding staat dat je bij updates niet opnieuw `pip` hoeft te draaien, maar in mijn ervaring is dat wel nodig. Dus na: 
+- The installation manual mentions not having to run pip again after updating the package, but this did not seems to work for me. So after:
 
         git pull origin master
     
-    moet je nog wel even:
+    run:
 
         pip install .
-    
-    doen. 
+
+- This ReAgent script depends on having ReAgent downloaded and ready on your system. The script finds the install via the `REAGENT_LOCATION` environment variable. Under bash this is done by adding:
+
+	    export REAGENT_LOCATION="/path/to/ReAgent"
+
+    to your `~/.bashrc` file.
 
 
 ## ReAgent gebruiken
-Het gebruik van ReAgent was een beetje clunky, dus ik het een set aan scripts rondom ReAgent geschreven. 
-
-Een verse run van ReAgent kun je opzetten met:
+Setting up a new ReAgent run is done using the `init` subcommand:
 
     reagent init run_name bla.json
 
-waarbij:
+where:
 
-- het eerste argument de naam van de run. Dit wordt ook de directory waarin de run staat. 
-- en het tweede argument de JSON file waar de training data in klaar staat. Deze wordt in de run klaar gezet. 
+- `run_name` the name of the run, this is also the directory where the run will be stored. 
+- `bla.json` the input data for the run. See the [ReAgent usage page](https://reagent.ai/usage.html#offline-rl-training-batch-rl) for the needed format. 
 
 Deze cloned de versie van ReAgent die onder de `REAGENT_LOCATION` environment variable staat. Ook wordt het preprocessing package gebouwd. De aanname is hier dat je de installatie van ReAgent al hebt gedaan, dus Spark en PyTorch staan al geinstalleerd. 
 
@@ -84,9 +82,13 @@ Run bestaat uit:
 ### REAGENT_LOCATION environment variable instellen
 In Bash (ubuntu) doe je dit door:
 
-    export REAGENT_LOCATION="/path/to/ReAgent"
 
 toe te voegen aan je `.bashrc`.
 
 ### Logging
 ReAgent slaat alle commando's op die je runt. Op die manier kun je later zien wat er allemaal in volgorde gebeurt is met een repo.
+
+# Notes
+De `export` commandos moeten in je aan het conda env toevoegen. Hoe je dit doet [staat hier](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#macos-and-linux), de locatie van het env is bijvoorbeeld `/home/paul/anaconda3/envs/ReAgent`. 
+
+    - De `JAVA_HOME` heeft standaard al een waarde. Voorlopig laat ik die even staan. 

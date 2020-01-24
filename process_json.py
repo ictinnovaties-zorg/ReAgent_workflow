@@ -1,7 +1,17 @@
 import json
+import logging
 
 # TODO;
 # - Add reading and dumping of json config files
+
+def dump_json_and_log_content(config, path, prefix = 'Config'):
+    logging.info('%s settings saved in %s.' % (prefix, path))
+    # Showing the settings in the log file
+    for line in json.dumps(config, indent=2).split('\n'):
+        logging.info(line)
+    with open(path, "w") as write_file:
+        json.dump(config, write_file, indent=2)
+
 
 def replace_value_in_dict(input_dict, replace_key, new_value):
     '''

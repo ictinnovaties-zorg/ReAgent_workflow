@@ -5,7 +5,7 @@ import os
 import json
 from pandas.io.json import json_normalize
 import glob
-from process_json import replace_multiple_value_in_dict
+from process_json import replace_multiple_value_in_dict, dump_json_and_log_content
 from logging_subprocess import logged_check_call
 
 def reagent_init(run_name, training_data_path, reagent_location, delete_old_run=False):
@@ -182,13 +182,7 @@ def read_timeline_config_template():
 
 def generate_timeline_data(preprocessing_settings, timeline_config_template):
     timeline_config = update_timeline_config(timeline_config_template, preprocessing_settings)
-
-    logging.info('Timeline preprocessing settings saved in current_timeline_config.json.')
-    # Showing the settings in the log file
-    for line in json.dumps(timeline_config, indent=2).split('\n'):
-        logging.info(line)
-    with open("current_timeline_config.json", "w") as write_file:
-        json.dump(timeline_config, write_file, indent=2)
+    dump_json_and_log_content(timeline_config, 'current_timeline_config.json', 'Timeline preprocessing')
 
     logging.info('Calling Spark to generate timeline data')
     logged_check_call(['spark-submit', 
@@ -240,18 +234,22 @@ def generate_normalisation_params(config_template):
     #       --> Settings seem to be OK
     normalisation_config = replace_multiple_value_in_dict(config_template, {'training_data_path': "training_data/training_data.json", 
                                                                             "eval_data_path": "training_data/evaluation_data.json"})
-    logging.info('Normalisation preprocessing settings saved in current_normalisation_config.json.')
-    # Showing the settings in the log file
-    for line in json.dumps(normalisation_config, indent=2).split('\n'):
-        logging.info(line)
-    with open("current_normalisation_config.json", "w") as write_file:
-        json.dump(normalisation_config, write_file, indent=2)
+    dump_json_and_log_content(normalisation_config, 'current_normalisation_config.json', 'Normalisation config')
 
     logging.info('Running normalisation')
     logged_check_call(['python', 'ml/rl/workflow/create_normalization_metadata.py', '-p', 'current_normalisation_config.json'])
 
-def train_model(config_template):
-    pass
+def train_model(config_template, training_settings):
+    # Merge the given settings with a few that always need to be set. Notice that the
+    # order of the addition means that any settings in the training settings file will
+    # be overwritten by the hardcoded ones. 
+    update_dict = {**training_settings, **{'training_data_path': "training_data/training_data.json", 
+                    "eval_data_path": "training_data/evaluation_data.json"}}
+    training_config = replace_multiple_value_in_dict(config_template, update_dict)
+                                                                            
+    dump_json_and_log_content(training_config, 'current_training_config.json', 'Training config')
+    logged_check_call(["python", "ml/rl/workflow/dqn_workflow.py", "-p", "current_training_config.json"])
+
 
 def reagent_run(run_settings, skip_preprocess):
     '''
@@ -277,6 +275,10 @@ def reagent_run(run_settings, skip_preprocess):
 
     # All cleanup is done before all other actions. This is the only way I could get a 
     # stable run. 
+
+    # REMOVE!!
+    skip_preprocess = True
+
     if not skip_preprocess:
         cleanup_preprocessing_artifacts()
     cleanup_training_artifacts()
@@ -291,7 +293,7 @@ def reagent_run(run_settings, skip_preprocess):
         generate_normalisation_params(training_normalisation_config_template)
     #
     # Train model
-    train_model(training_normalisation_config_template)
+    train_model(training_normalisation_config_template, run_settings["training"])
     #
     # Evaluate model
     logging.info('=========== END OF RUN ===============')
