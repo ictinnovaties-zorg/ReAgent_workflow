@@ -11,14 +11,14 @@ The rest of this introduction will show how to setup ReAgent in order to work ef
 # TL;DR
 Short example run:
 
-    reagent.py init cartpole_run generated_cartpole_data.json --delete-old-run 
+    reagent init cartpole_run generated_cartpole_data.json --delete-old-run 
     cp example_full_run_config.json cartpole_run
     cd cartpole_run
-    reagent.py run -r example_full_run_config.json
+    reagent run -r example_full_run_config.json
 
 Help for init:
 
-    usage: reagent.py [-h] [--delete-old-run] [--debug] name training_data
+    usage: reagent [-h] [--delete-old-run] [--debug] name training_data
     
     Initialize new ReAgent run
     
@@ -33,7 +33,7 @@ Help for init:
 
 Help for run:
 
-    usage: reagent.py [-h] [-r RUN_SETTINGS] [-s] [-d] [--ps key [value ...]]
+    usage: reagent [-h] [-r RUN_SETTINGS] [-s] [-d] [--ps key [value ...]]
                       [--ts key [value ...]]
     
     Run ReAgent
@@ -90,12 +90,17 @@ If you run into a problem with one of the submodules not loading properly, [you 
 In order to get the scripts working you need to:
 
 - Clone the repo
-- Add the location of the cloned repo to your `$PATH` environment variable. 
+- Install the package using:
+
+    cd ReAgent_scripts
+    pip install .
+
+This will install the package and the command line script called `reagent`. 
 
 ## Running ReAgent
 Setting up a new ReAgent run is done using the `init` subcommand:
 
-    reagent.py init run_name bla.json
+    reagent init run_name bla.json
 
 where:
 
@@ -110,18 +115,18 @@ After setting up an new run, you can start training models:
 
 For now this runs a discrete action DQN as is used in the example on the ReAgent site. 
 
-Below I describe the basic working of `reagent.py run`, the full detailed technical documentation can be had via `reagent.py run -h`. 
+Below I describe the basic working of `reagent run`, the full detailed technical documentation can be had via `reagent run -h`. 
 
 - `--skip-preprocessing` skip processing and directly start training a model. You can use this to repeatedly retrain a model with the need of having to rerun the preprocessing (generate timeline data, generate normalisation params). 
 - `-r settings_config.json` optional settings file that enables you to change preprocessing and training settings in the run. For more details see the section below. 
 
-In addition to the settings file, `reagent.py` also allows you to pass settings on the command line. This is done vvia the `--ts` and `--ps` for training settings and preprocessing settings respectively. For example:
+In addition to the settings file, `reagent` also allows you to pass settings on the command line. This is done vvia the `--ts` and `--ps` for training settings and preprocessing settings respectively. For example:
 
-    reagent.py run -r settings_config.json --ts learning_rate 0.0001
+    reagent run -r settings_config.json --ts learning_rate 0.0001
 
 reads the settings from the file, but replaces the learning rate by `0.0001`. You case pass multiple values by simply calling `--ts` multiple times
 
-    reagent.py run -r settings_config.json --ts learning_rate 0.0001 --ts epochs 300
+    reagent run -r settings_config.json --ts learning_rate 0.0001 --ts epochs 300
 
 will read the file and replace learning rate and number of epochs. **NOTE** you can pass settings via `--ts`and `--ps` that are not in `settings_config.json`. You can even omit the settings file completely and pass everything via the commandline.  
 
@@ -156,20 +161,20 @@ Note that it does not matter how deeply nested any of the settings are, the repl
 ## Full run example
 First we set up an new run and perform one training run:
 
-    reagent.py init cartpole_run generated_cartpole_data.json --delete-old-run 
+    reagent init cartpole_run generated_cartpole_data.json --delete-old-run 
     cp example_full_run_config.json cartpole_run
     cd cartpole_run
-    reagent.py run -r example_full_run_config.json
+    reagent run -r example_full_run_config.json
 
 Note that `example_full_run_config.json` and `generated_cartpole_data.json` are included in this repo in the `example_data` subdirectory.
 
 If we want to run the exact same run, but with a learning rate of `0.001`, you can edit the config file and:
 
-    reagent.py run -r edited_config.json --skip-preprocessing
+    reagent run -r edited_config.json --skip-preprocessing
 
 This will not run the preprocessing, and retrain the model with the new learning rate. Alternatively, you could have not edited the file, but passed the new value via the command line:
 
-    reagent.py run -r example_full_run_config.json --ts learning_rate 0.001
+    reagent run -r example_full_run_config.json --ts learning_rate 0.001
 
 which yields the exact same result. 
 

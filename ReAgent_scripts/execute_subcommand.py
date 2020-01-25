@@ -5,8 +5,8 @@ import os
 import json
 from pandas.io.json import json_normalize
 import glob
-from process_json import replace_multiple_value_in_dict, dump_json_and_log_content
-from logging_subprocess import logged_check_call
+from .process_json import replace_multiple_value_in_dict, dump_json_and_log_content
+from .logging_subprocess import logged_check_call
 
 def reagent_init(run_name, training_data_path, reagent_location, delete_old_run=False):
     '''
