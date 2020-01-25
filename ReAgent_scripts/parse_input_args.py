@@ -6,8 +6,8 @@ def parse_init(args):
     parser = argparse.ArgumentParser(description='Initialize new ReAgent run')
     parser.add_argument('name', help='Name of the run')
     parser.add_argument('training_data', help='Training data used for the run')
-    parser.add_argument('--delete-old-run', help='Delete the run in `name` if it already exists. ', action='store_true')
-    parser.add_argument('--debug', help='Do not buffer the Python errors, useful during development', action='store_true')
+    parser.add_argument('-o', '--delete-old-run', help='Delete the run in `name` if it already exists. ', action='store_true')
+    parser.add_argument('-d', '--debug', help='Do not buffer the Python errors, useful during development', action='store_true')
     init_args = parser.parse_args(args)
     
     if os.path.isabs(init_args.name):
