@@ -6,7 +6,7 @@ A number of parts of a ReAgent workflow steps are provided:
 - `init` initialize a ReAgent run
 - `run` run ReAgent, with or without preprocessing and allowing you to change the settings of the workflow (e.g. learning rate)
 
-The rest of this introduction will show how to setup ReAgent in order to work effectively with this script. You can find the [technical documentation of the code here](doc/ReAgent_scripts/index.html). 
+The rest of this introduction will show how to setup ReAgent in order to work effectively with this script. You can find the [technical documentation of the code here](https://htmlpreview.github.io/?https://github.com/PaulHiemstra/ReAgent_scripts/blob/master/doc/ReAgent_scripts/index.html). 
 
 # TL;DR
 Short example run:
