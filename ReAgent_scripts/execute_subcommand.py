@@ -1,3 +1,7 @@
+"""
+This submodule contains all the code that runs each of the subcommands. Currently these are `init` to initialize a run and `run` to actually run ReAgent. These are executed using the `reagent_init` and `reagent_run` Python functions respectively. 
+"""
+
 import subprocess
 import shutil
 import logging
@@ -11,11 +15,10 @@ from .logging_subprocess import logged_check_call
 def reagent_init(run_name, training_data_path, reagent_location, delete_old_run=False):
     '''
     Initialize a reagent_run
-
-    TODO:
-    - Add check if git is installed and provide good error message
-    - Expand docstring
     '''
+    # TODO:
+    # - Add check if git is installed and provide good error message
+    # - Expand docstring
     logging.info('Setting up new ReAgent run in %s' % run_name)
     if delete_old_run and os.path.isdir(run_name):
         logging.info('Deleting old run in "%s"' % run_name)
@@ -48,7 +51,7 @@ def reagent_init(run_name, training_data_path, reagent_location, delete_old_run=
         logging.info('Copying log file to the run')
         shutil.move('run_activity.log', '%s/run_activity.log' % run_name)
 
-def is_reagent_run():
+def _is_reagent_run():
     '''
     Check if the current directory is a valid reagent run. Return True if is, False if not. 
     '''
@@ -61,10 +64,9 @@ def is_reagent_run():
 def check_run(skip_preprocess):
     '''
     Perform a number of sanity checks on the run
-
-    TODO:
-    - Rewrite checks
     '''
+    # TODO:
+    # - Rewrite checks
     logging.info('Performing basic sanity check on the current run')
 
     raw_data_file = glob.glob("raw_data/*json")
@@ -93,25 +95,26 @@ def update_timeline_config(timeline_config, preprocessing_setting):
     Input is a list/dict, output is an updated list/dict 
 
     The base config is:
-    {
-      "timeline": {
-        "startDs": "2019-01-01",
-        "endDs": "2019-01-01",
-        "addTerminalStateRow": true,
-        "actionDiscrete": true,
-        "inputTableName": "cartpole_discrete",
-        "outputTableName": "cartpole_discrete_training",
-        "evalTableName": "cartpole_discrete_eval",
-        "numOutputShards": 1
-      },
-      "query": {
-        "tableSample": 100,
-        "actions": [
-          "0",
-          "1"
-        ]
-      }
-    }
+
+        {
+          "timeline": {
+            "startDs": "2019-01-01",
+            "endDs": "2019-01-01",
+            "addTerminalStateRow": true,
+            "actionDiscrete": true,
+            "inputTableName": "cartpole_discrete",
+            "outputTableName": "cartpole_discrete_training",
+            "evalTableName": "cartpole_discrete_eval",
+            "numOutputShards": 1
+          },
+          "query": {
+            "tableSample": 100,
+            "actions": [
+              "0",
+              "1"
+            ]
+          }
+        }
     
     - NOT CHANGE addTerminalStateRow: add the terminal state at the end of the episode.
       afaik this should always be true. 
