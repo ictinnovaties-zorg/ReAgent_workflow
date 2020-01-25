@@ -1,5 +1,9 @@
 """
 This submodule contains all the code that runs each of the subcommands. Currently these are `init` to initialize a run and `run` to actually run ReAgent. These are executed using the `reagent_init` and `reagent_run` Python functions respectively. 
+
+The main usage I see is to write Python scripts that use `reagent_init` and `reagent_run` to run batches of runs. You could use this to run a hyper parameter optimisation in a python loop. 
+
+**NOTE** this programmable interface is very experimental, use at your own peril. The main interface is the commandline interface. 
 """
 
 import subprocess
@@ -14,7 +18,13 @@ from .logging_subprocess import logged_check_call
 
 def reagent_init(run_name, training_data_path, reagent_location, delete_old_run=False):
     '''
-    Initialize a reagent_run
+    Initialize a reagent_run. This clones the git ReAgent repo, builds the preprocessing JAR and finally copies the `run_activity.log` file to the run directory. 
+
+    Args:
+       run_name (string): name of the run. This is mainly used for git cloning. Note that this is not allowed to be a full path, just one string. This to reduce risk of someone accidently deleting a directory they do not want. This is caused by the fact that via `delete_old_run` this path can be deleted. 
+       training_data_path (path): the path to the training data file that contains the raw training data.
+       reagent_location (path): location where ReAgent is installed. This is needed as a clone of this repo is made for each new run. 
+       delete_old_run (bool): in case a run with the given name already exists, should this be deleted or not. 
     '''
     # TODO:
     # - Add check if git is installed and provide good error message
@@ -51,9 +61,9 @@ def reagent_init(run_name, training_data_path, reagent_location, delete_old_run=
         logging.info('Copying log file to the run')
         shutil.move('run_activity.log', '%s/run_activity.log' % run_name)
 
-def _is_reagent_run():
+def is_reagent_run():
     '''
-    Check if the current directory is a valid reagent run. Return True if is, False if not. 
+    Check if the current directory is a valid reagent run. Return True if is, False if not. This function acutally calls the `check_run` function and checks for exceptions.
     '''
     try:
         check_run()
@@ -63,10 +73,15 @@ def _is_reagent_run():
 
 def check_run(skip_preprocess):
     '''
-    Perform a number of sanity checks on the run
+    Perform a number of sanity checks on a run. Note that this is performed in the current working directory. 
+
+    Args:
+       skip_preprocess (bool): whether or not the skip_process will be used. This performs an additional check to see if the run can be started without preprocess. 
+
+    TODO:
+
+    - Add option to pass path, allowing someone to check any path they want.  
     '''
-    # TODO:
-    # - Rewrite checks
     logging.info('Performing basic sanity check on the current run')
 
     raw_data_file = glob.glob("raw_data/*json")
@@ -88,7 +103,7 @@ def check_run(skip_preprocess):
                raise ValueError('INVALID RUN: some files missing to start run without running preprocessing')
 
 
-def update_timeline_config(timeline_config, preprocessing_setting):
+def _update_timeline_config(timeline_config, preprocessing_setting):
     '''
     Update timeline config with the required settings. 
     
@@ -156,16 +171,31 @@ def update_timeline_config(timeline_config, preprocessing_setting):
     return replace_multiple_value_in_dict(timeline_config, replace_dict)
 
 def remove_dir_if_exists(path):
+    '''
+    Check if a directory exists, and remove if it does.  This also logs any action to the root logger.
+
+    Args:
+       path (string): the path to the directory to check and/or remove. 
+    '''
     if os.path.isdir(path):
         logging.info('Found directory %s, removing...' % path)
         shutil.rmtree(path)
 
 def remove_file_if_exists(path):
+    '''
+    Check if a file exists, and remove if it does.  This also logs any action to the root logger.
+
+    Args:
+       path (string): the path to the file to check and/or remove. 
+    '''
     if os.path.isfile(path):
         logging.info('Found file %s, removing...' % path)
         os.remove(path)
 
 def cleanup_preprocessing_artifacts():
+    '''
+    Remove all preprocessing artifacts related to preprocessing. This includes generated timeline data and spark artifacts. 
+    '''
     logging.info('PREPROCESS: remove previously generated timeline data (training and eval)')
     # Note that we ignore any errors, primarily due to the directories not existing. 
     remove_dir_if_exists('spark_raw_timeline_training')
@@ -180,16 +210,27 @@ def cleanup_preprocessing_artifacts():
     remove_file_if_exists('preprocessing/derby.log')
 
 def cleanup_training_artifacts():
+    '''
+    Remove all training artifacts.
+    '''
     remove_dir_if_exists('outputs')
 
 def read_timeline_config_template():
+    '''
+    Read the timeline config template that will form the basis for the timeline data generation. 
+
+    This file is read from ` ml/rl/workflow/sample_configs/discrete_action/timeline.json`
+    '''
     logging.info('Reading timeline preprocessing config template from ml/rl/workflow/sample_configs/discrete_action/timeline.json')
     with open('ml/rl/workflow/sample_configs/discrete_action/timeline.json') as timeline_config_json:
         timeline_config = json.load(timeline_config_json)
     return timeline_config
 
 def generate_timeline_data(preprocessing_settings, timeline_config_template):
-    timeline_config = update_timeline_config(timeline_config_template, preprocessing_settings)
+    '''
+    Generate timeline data based on the config template and the preprocessing settings. Note that these are merged and that the preprocessing settings take precedent. 
+    '''
+    timeline_config = _update_timeline_config(timeline_config_template, preprocessing_settings)
     dump_json_and_log_content(timeline_config, 'current_timeline_config.json', 'Timeline preprocessing')
 
     logging.info('Calling Spark to generate timeline data')
@@ -215,12 +256,21 @@ def generate_timeline_data(preprocessing_settings, timeline_config_template):
         shutil.copyfile(evaluation_parts[0], 'training_data/evaluation_data.json')
 
 def read_normalisation_training_config_template():
+    '''
+    Read the normalisation parameters required. 
+    '''
     logging.info('Reading normalisation preprocessing and training config template from ml/rl/workflow/sample_configs/discrete_action/dqn_example.json')
     with open('ml/rl/workflow/sample_configs/discrete_action/dqn_example.json') as config_json:
         config = json.load(config_json)
     return config
 
 def generate_normalisation_params(config_template):
+    '''
+    Generate normalisation parameters
+
+    Args:
+        config_template (dict): nested dict structure. Provides the basis for the preprocessing. Note that this is the same template that is used for training the model. 
+    '''
     # Change some settings in the config template
     # NOTE this is the same template as used for training, but I don't think we need
     # to replace all settings such as learning rate. 
@@ -248,6 +298,11 @@ def generate_normalisation_params(config_template):
     logged_check_call(['python', 'ml/rl/workflow/create_normalization_metadata.py', '-p', 'current_normalisation_config.json'])
 
 def train_model(config_template, training_settings):
+    '''
+    Run ReAgent based on the given config template and the training settings that are merged into that. The training settings take precedent. 
+
+    Currently only a DQN with discrete action is supported. 
+    '''
     # Merge the given settings with a few that always need to be set. Notice that the
     # order of the addition means that any settings in the training settings file will
     # be overwritten by the hardcoded ones. 
@@ -263,7 +318,12 @@ def reagent_run(run_settings, skip_preprocess):
     '''
     Start a reagent run. 
 
+    Args:
+        run_settings (dict): a nested dict that provides the settings for this run. See [the readme file] for a description of the kind of parameters that can be passed here. The dict syntax should be very similar to the json syntax. Another good trick would be to read the settings from a file using `json.load`, this will yield the correct input for this function.  
+        skip_preprocess (bool): skip preprocessing or not. 
+
     TODO:
+
     - Add check for spark and provide meaningful error message
     - Expand docstring
     - Find out what the 'tableSample' argument does

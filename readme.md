@@ -92,8 +92,8 @@ In order to get the scripts working you need to:
 - Clone the repo
 - Install the package using:
 
-    cd ReAgent_scripts
-    pip install .
+        cd ReAgent_scripts
+        pip install .
 
 This will install the package and the command line script called `reagent`. 
 

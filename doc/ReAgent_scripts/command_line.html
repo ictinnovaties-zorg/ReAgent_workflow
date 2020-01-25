@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.4" />
+<title>ReAgent_scripts.command_line API documentation</title>
+<meta name="description" content="This submodule hosts the command line interface of ReAgent_scripts. It uses the functions defined in the other submodules to actually control ReAgent …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>ReAgent_scripts.command_line</code></h1>
+</header>
+<section id="section-intro">
+<p>This submodule hosts the command line interface of ReAgent_scripts. It uses the functions defined in the other submodules to actually control ReAgent. </p>
+<p>This is the main interface that controls ReAgent. This is also a good place to start if you want to create your own workflow scripts in Python.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#39;&#39;&#39;
+This submodule hosts the command line interface of ReAgent_scripts. It uses the functions defined in the other submodules to actually control ReAgent. 
+
+This is the main interface that controls ReAgent. This is also a good place to start if you want to create your own workflow scripts in Python. 
+&#39;&#39;&#39;
+
+# TODO: 
+# - Expand usage documentation of the main and subcommands
+# - Add unit tests
+# - Refactor cmd line interface so the individual commands can be run seperate from 
+#   the cmd line interface. 
+
+import sys
+import logging
+import os
+import json
+import argparse
+from pathlib import Path
+
+from ReAgent_scripts import reagent_init, reagent_run
+
+# =========== LOGGER ============
+# Setting up the logging for this script
+# We have two destinations for logging: 
+#  - The console
+#  - A log file
+# Note that all the code dumps messages to the root logger. So use that
+# if you want the log info of the underlying functions that do the work.
+logging.basicConfig(level=logging.INFO, filename=&#39;run_activity.log&#39;, 
+                    format=&#39;%(asctime)s %(name)-12s %(levelname)-8s %(message)s&#39;,
+                    datefmt=&#39;%m-%d %H:%M&#39;, filemode=&#39;a+&#39;)
+# Adding the secondary logger for console
+console = logging.StreamHandler()
+console.setLevel(logging.INFO)
+formatter = logging.Formatter(&#39;%(name)-12s: %(levelname)-8s %(message)s&#39;)
+console.setFormatter(formatter)
+logging.getLogger(&#39;&#39;).addHandler(console)
+
+# =========== Support functions =============
+def resolve_path(path):
+    &#39;&#39;&#39;
+    Interpret paths Bash style. This takes care of things like `..` and `~`, expanding those like Bash would do. This is very useful when processing paths received from the command line. 
+
+    Args:
+      path: the path you want to resolve
+
+    Returns:
+      path: The resolved path
+     
+    &#39;&#39;&#39;
+    return Path(path).expanduser().resolve()
+
+def _get_run_settings(args):
+    # Note that I put the run in a separate try/except statement so I can give a 
+    # specific error message when the config file is not found. The run can also generate
+    # a host of errors, so we treat those more generically. 
+    if args.run_settings is not None:
+        try:
+            with open(resolve_path(args.run_settings)) as run_settings_json:
+                run_settings = json.load(run_settings_json)
+        except FileNotFoundError:
+            logging.error(&#39;Could not find run settings config file %s&#39; % args.run_settings)
+            exit(1)
+    else:
+        # Empty placeholder is no settings file is passed
+        run_settings = {&#39;preprocessing&#39;: {}, &#39;training&#39;: {}}
+    # merge --ts and --ps
+    if args.ts is not None:
+        # Merge settings from settings file with those passed via --ts on the command line
+        # the settings from --ts get preference. 
+        # Also notice the use of json.loads. This is to transform the string we get from the command
+        # line to the appropriate data type. &#39;0.001&#39; becomes float, &#39;1&#39; becomes int and &#39;bla&#39; 
+        # becomes str. The nice thing of json.loads is that it matches all the other json loading
+        # conventions that the other tooling in ReAgent uses. 
+        ts_dict = {val[0]:json.loads(val[1]) for val in args.ts}
+        run_settings[&#39;training&#39;] = {**run_settings[&#39;training&#39;], **ts_dict}
+    if args.ps is not None:
+        ps_dict = {val[0]:json.loads(val[1]) for val in args.ps}
+        run_settings[&#39;preprocessing&#39;] = {**run_settings[&#39;preprocessing&#39;], **ps_dict}
+
+    return run_settings
+
+#====== PARSING INPUT ARGUMENTS =========
+def _parse_init(args):
+    parser = argparse.ArgumentParser(description=&#39;Initialize new ReAgent run&#39;)
+    parser.add_argument(&#39;name&#39;, help=&#39;Name of the run&#39;)
+    parser.add_argument(&#39;training_data&#39;, help=&#39;Training data used for the run&#39;)
+    parser.add_argument(&#39;-o&#39;, &#39;--delete-old-run&#39;, help=&#39;Delete the run in `name` if it already exists. &#39;, action=&#39;store_true&#39;)
+    parser.add_argument(&#39;-d&#39;, &#39;--debug&#39;, help=&#39;Do not buffer the Python errors, useful during development&#39;, action=&#39;store_true&#39;)
+    init_args = parser.parse_args(args)
+    
+    if os.path.isabs(init_args.name):
+        logging.error(&#39;The name of the ReAgent run should be a single string, not an absolute path: %s&#39; % init_args.name)
+        exit(1)
+    if os.path.split(init_args.name)[0] != &#39;&#39;:
+        logging.error(&#39;The name of the ReAgent run should be a single string, not a relative path: %s&#39; % init_args.name)
+        exit(1)
+
+    return init_args
+
+def _parse_run(args):
+    parser = argparse.ArgumentParser(description=&#39;Run ReAgent&#39;)
+    parser.add_argument(&#39;-r&#39;, &#39;--run_settings&#39;, help=&#39;Path to a settings file containing the global settings for this run&#39;)
+    parser.add_argument(&#39;-s&#39;, &#39;--skip-preprocessing&#39;, help=&#39;Skip preprocessing, and immediately launch the run &#39;, action=&#39;store_true&#39;)
+    parser.add_argument(&#39;-d&#39;, &#39;--debug&#39;, help=&#39;Do not buffer the Python errors, useful during development&#39;, action=&#39;store_true&#39;)
+    parser.add_argument(&#39;--ps&#39;, help=&#39;Pass preprocessing setting&#39;, nargs=&#39;+&#39;, action=&#39;append&#39;, metavar=(&#39;key&#39;,&#39;value&#39;))
+    parser.add_argument(&#39;--ts&#39;, help=&#39;Pass traininging settings&#39;, nargs=&#39;+&#39;, action=&#39;append&#39;, metavar=(&#39;key&#39;,&#39;value&#39;))
+    run_args = parser.parse_args(args)
+
+    return run_args
+
+subcommand_mapping = {&#39;init&#39;: _parse_init, &#39;run&#39;: _parse_run}
+
+def parse_arguments(args):
+    &#39;&#39;&#39;
+    Parses the arguments passed from the command line. 
+
+    Args:
+       args: the raw input args, most probably generated by `sys.argv`
+    &#39;&#39;&#39;
+    parser = argparse.ArgumentParser(description=&#39;Interact with ReAgent: an offline Reinforcement Learning library&#39;)
+    parser.add_argument(&#39;command&#39;, help=&#39;Subcommand to run&#39;)
+    subcommand = parser.parse_args(args[1:2])
+    if subcommand.command not in subcommand_mapping.keys():
+        print(&#39;Unknown subcommand: %s&#39; % subcommand.command)
+        parser.print_help()
+        exit(1)
+
+    parsing_function = subcommand_mapping[subcommand.command]
+    return subcommand.command, parsing_function(args[2:])
+
+def main():
+    &#39;&#39;&#39;
+    The main function that actually runs the script. 
+    &#39;&#39;&#39;
+    if not &#39;REAGENT_LOCATION&#39; in os.environ:
+        logging.error(&#34;The &#39;REAGENT_LOCATION&#39; environment variable is not set.&#34;)
+        exit(1)
+
+    subcommand, args = parse_arguments(sys.argv)
+    if subcommand == &#39;init&#39;:
+        if not args.debug:
+            # Catch errors and provide nice message is not in debug mode
+            try:
+                reagent_init(args.name, args.training_data, os.environ[&#39;REAGENT_LOCATION&#39;], args.delete_old_run)
+            except Exception as e:
+                logging.error(&#39;Failed to initialize run: %s&#39; % e)
+                exit(1)
+        else:
+            # Simply give me the raw Python errors in debug mode
+            reagent_init(args.name, args.training_data, os.environ[&#39;REAGENT_LOCATION&#39;], args.delete_old_run)
+    elif subcommand == &#39;run&#39;:
+        run_settings = _get_run_settings(args)
+        if not args.debug:
+            try:
+                reagent_run(run_settings, args.skip_preprocessing)
+            except Exception as e:
+                logging.error(&#39;Failed to complete run: %s&#39; % e)
+                exit(1)
+        else:
+            reagent_run(run_settings, args.skip_preprocessing)
+    else:
+        logging.error(&#39;Unknown subcommand %s&#39; % subcommand)
+        exit(1)
+
+# =========== Command line interface ========
+if __name__ == &#39;__main__&#39;:
+    main()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="ReAgent_scripts.command_line.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>The main function that actually runs the script.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main():
+    &#39;&#39;&#39;
+    The main function that actually runs the script. 
+    &#39;&#39;&#39;
+    if not &#39;REAGENT_LOCATION&#39; in os.environ:
+        logging.error(&#34;The &#39;REAGENT_LOCATION&#39; environment variable is not set.&#34;)
+        exit(1)
+
+    subcommand, args = parse_arguments(sys.argv)
+    if subcommand == &#39;init&#39;:
+        if not args.debug:
+            # Catch errors and provide nice message is not in debug mode
+            try:
+                reagent_init(args.name, args.training_data, os.environ[&#39;REAGENT_LOCATION&#39;], args.delete_old_run)
+            except Exception as e:
+                logging.error(&#39;Failed to initialize run: %s&#39; % e)
+                exit(1)
+        else:
+            # Simply give me the raw Python errors in debug mode
+            reagent_init(args.name, args.training_data, os.environ[&#39;REAGENT_LOCATION&#39;], args.delete_old_run)
+    elif subcommand == &#39;run&#39;:
+        run_settings = _get_run_settings(args)
+        if not args.debug:
+            try:
+                reagent_run(run_settings, args.skip_preprocessing)
+            except Exception as e:
+                logging.error(&#39;Failed to complete run: %s&#39; % e)
+                exit(1)
+        else:
+            reagent_run(run_settings, args.skip_preprocessing)
+    else:
+        logging.error(&#39;Unknown subcommand %s&#39; % subcommand)
+        exit(1)</code></pre>
+</details>
+</dd>
+<dt id="ReAgent_scripts.command_line.parse_arguments"><code class="name flex">
+<span>def <span class="ident">parse_arguments</span></span>(<span>args)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Parses the arguments passed from the command line. </p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>args</code></strong></dt>
+<dd>the raw input args, most probably generated by <code>sys.argv</code></dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse_arguments(args):
+    &#39;&#39;&#39;
+    Parses the arguments passed from the command line. 
+
+    Args:
+       args: the raw input args, most probably generated by `sys.argv`
+    &#39;&#39;&#39;
+    parser = argparse.ArgumentParser(description=&#39;Interact with ReAgent: an offline Reinforcement Learning library&#39;)
+    parser.add_argument(&#39;command&#39;, help=&#39;Subcommand to run&#39;)
+    subcommand = parser.parse_args(args[1:2])
+    if subcommand.command not in subcommand_mapping.keys():
+        print(&#39;Unknown subcommand: %s&#39; % subcommand.command)
+        parser.print_help()
+        exit(1)
+
+    parsing_function = subcommand_mapping[subcommand.command]
+    return subcommand.command, parsing_function(args[2:])</code></pre>
+</details>
+</dd>
+<dt id="ReAgent_scripts.command_line.resolve_path"><code class="name flex">
+<span>def <span class="ident">resolve_path</span></span>(<span>path)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Interpret paths Bash style. This takes care of things like <code>..</code> and <code>~</code>, expanding those like Bash would do. This is very useful when processing paths received from the command line. </p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>path</code></strong></dt>
+<dd>the path you want to resolve</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>path</code></strong></dt>
+<dd>The resolved path</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def resolve_path(path):
+    &#39;&#39;&#39;
+    Interpret paths Bash style. This takes care of things like `..` and `~`, expanding those like Bash would do. This is very useful when processing paths received from the command line. 
+
+    Args:
+      path: the path you want to resolve
+
+    Returns:
+      path: The resolved path
+     
+    &#39;&#39;&#39;
+    return Path(path).expanduser().resolve()</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="ReAgent_scripts" href="index.html">ReAgent_scripts</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="ReAgent_scripts.command_line.main" href="#ReAgent_scripts.command_line.main">main</a></code></li>
+<li><code><a title="ReAgent_scripts.command_line.parse_arguments" href="#ReAgent_scripts.command_line.parse_arguments">parse_arguments</a></code></li>
+<li><code><a title="ReAgent_scripts.command_line.resolve_path" href="#ReAgent_scripts.command_line.resolve_path">resolve_path</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

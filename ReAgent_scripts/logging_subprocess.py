@@ -1,23 +1,37 @@
-# Adapted from https://gist.github.com/bgreenlee/1402841
+'''
+Implements a variant of `call` and `check_call` from the subprocess package that logs the output of the call. The extra side-effect is that apart from running the call, they also pipe the output to the root logger. 
+'''
 
 import subprocess
 import select
 from logging import DEBUG, ERROR, INFO, getLogger
 
 def logged_check_call(*args, **kwargs):
+    """
+    Run the call, but also log any output to the root logger. Mimics the behavior of check_call, i.e. try and run the code and returning CalledProcessError if it does not work. 
+
+    Note that this acts as a wrapper around `logged_call` and simply passes any of the arguments and keyword arguments on to that function. 
+    """
     return_val = logged_call(*args, **kwargs)
     if return_val != 0:
         raise subprocess.CalledProcessError(return_val, *args)
 
 def logged_call(popenargs, logger=getLogger(''), stdout_log_level=INFO, stderr_log_level=ERROR, **kwargs):
     """
-    Variant of subprocess.call that accepts a logger instead of stdout/stderr,
+    Variant of subprocess.call ([adapted from here](https://gist.github.com/bgreenlee/1402841)) that accepts a logger instead of stdout/stderr,
     and logs stdout messages via logger.debug and stderr messages via
     logger.error.
 
-    Note that this function defaults to the root logger (getLogger(''))
+    Args:
+        popenargs (list): list of strings that together make up the command. See `subprocess.call` for more details.
+        logger (logger): a logger to pass the output of the command to, this defaults to the root logger (`logging.getLogger('')`).
+        stdout_log_level (int): the log level used for stdout. See the logging module for more details.
+        stderr_log_level (int): the log level used for stderr. See the logging module for more details.
+
+    Note that the remaing keyword arguments (`**kwargs`) will be passed on to `Popen`.
 
     TODO:
+
     - Remove b'' before the captured logging output
     """
     child = subprocess.Popen(popenargs, stdout=subprocess.PIPE,
@@ -39,50 +53,3 @@ def logged_call(popenargs, logger=getLogger(''), stdout_log_level=INFO, stderr_l
     check_io()  # check again to catch anything after the process exits
 
     return child.wait()
-
-
-# tests, plunked in here for convenience
-
-#import sys
-#import unittest2
-#import logging_subprocess
-#import logging
-#from StringIO import StringIO
-#
-#
-#class LoggingSubprocessTest(unittest2.TestCase):
-#    def setUp(self):
-#        self.buffer = StringIO()
-#        self.logger = logging.getLogger('logging_subprocess_test')
-#        self.logger.setLevel(logging.DEBUG)
-#        self.logHandler = logging.StreamHandler(self.buffer)
-#        formatter = logging.Formatter("%(levelname)s-%(message)s")
-#        self.logHandler.setFormatter(formatter)
-#        self.logger.addHandler(self.logHandler)
-#
-#    def test_log_stdout(self):
-#        logging_subprocess.call([sys.executable, "-c",
-#                                "print 'foo'"], self.logger)
-#        self.assertIn('DEBUG-foo', self.buffer.getvalue())
-#
-#    def test_log_stderr(self):
-#        logging_subprocess.call([sys.executable, "-c",
-#                                'import sys; sys.stderr.write("foo\\n")'],
-#                                self.logger)
-#        self.assertIn('ERROR-foo', self.buffer.getvalue())
-#
-#    def test_custom_stdout_log_level(self):
-#        logging_subprocess.call([sys.executable, "-c",
-#                                "print 'foo'"], self.logger,
-#                                stdout_log_level=logging.INFO)
-#        self.assertIn('INFO-foo', self.buffer.getvalue())
-#
-#    def test_custom_stderr_log_level(self):
-#        logging_subprocess.call([sys.executable, "-c",
-#                                'import sys; sys.stderr.write("foo\\n")'],
-#                                self.logger,
-#                                stderr_log_level=logging.WARNING)
-#        self.assertIn('WARNING-foo', self.buffer.getvalue())
-#
-#if __name__ == "__main__":
-#    unittest2.main()

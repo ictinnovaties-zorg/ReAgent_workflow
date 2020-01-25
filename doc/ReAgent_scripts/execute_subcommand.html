@@ -1,0 +1,921 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.4" />
+<title>ReAgent_scripts.execute_subcommand API documentation</title>
+<meta name="description" content="This submodule contains all the code that runs each of the subcommands. Currently these are `init` to initialize a run and `run` to actually run …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>ReAgent_scripts.execute_subcommand</code></h1>
+</header>
+<section id="section-intro">
+<p>This submodule contains all the code that runs each of the subcommands. Currently these are <code>init</code> to initialize a run and <code>run</code> to actually run ReAgent. These are executed using the <a title="ReAgent_scripts.execute_subcommand.reagent_init" href="#ReAgent_scripts.execute_subcommand.reagent_init"><code>reagent_init()</code></a> and <a title="ReAgent_scripts.execute_subcommand.reagent_run" href="#ReAgent_scripts.execute_subcommand.reagent_run"><code>reagent_run()</code></a> Python functions respectively. </p>
+<p>The main usage I see is to write Python scripts that use <a title="ReAgent_scripts.execute_subcommand.reagent_init" href="#ReAgent_scripts.execute_subcommand.reagent_init"><code>reagent_init()</code></a> and <a title="ReAgent_scripts.execute_subcommand.reagent_run" href="#ReAgent_scripts.execute_subcommand.reagent_run"><code>reagent_run()</code></a> to run batches of runs. You could use this to run a hyper parameter optimisation in a python loop. </p>
+<p><strong>NOTE</strong> this programmable interface is very experimental, use at your own peril. The main interface is the commandline interface.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+This submodule contains all the code that runs each of the subcommands. Currently these are `init` to initialize a run and `run` to actually run ReAgent. These are executed using the `reagent_init` and `reagent_run` Python functions respectively. 
+
+The main usage I see is to write Python scripts that use `reagent_init` and `reagent_run` to run batches of runs. You could use this to run a hyper parameter optimisation in a python loop. 
+
+**NOTE** this programmable interface is very experimental, use at your own peril. The main interface is the commandline interface. 
+&#34;&#34;&#34;
+
+import subprocess
+import shutil
+import logging
+import os
+import json
+from pandas.io.json import json_normalize
+import glob
+from .process_json import replace_multiple_value_in_dict, dump_json_and_log_content
+from .logging_subprocess import logged_check_call
+
+def reagent_init(run_name, training_data_path, reagent_location, delete_old_run=False):
+    &#39;&#39;&#39;
+    Initialize a reagent_run. This clones the git ReAgent repo, builds the preprocessing JAR and finally copies the `run_activity.log` file to the run directory. 
+
+    Args:
+       run_name (string): name of the run. This is mainly used for git cloning. Note that this is not allowed to be a full path, just one string. This to reduce risk of someone accidently deleting a directory they do not want. This is caused by the fact that via `delete_old_run` this path can be deleted. 
+       training_data_path (path): the path to the training data file that contains the raw training data.
+       reagent_location (path): location where ReAgent is installed. This is needed as a clone of this repo is made for each new run. 
+       delete_old_run (bool): in case a run with the given name already exists, should this be deleted or not. 
+    &#39;&#39;&#39;
+    # TODO:
+    # - Add check if git is installed and provide good error message
+    # - Expand docstring
+    logging.info(&#39;Setting up new ReAgent run in %s&#39; % run_name)
+    if delete_old_run and os.path.isdir(run_name):
+        logging.info(&#39;Deleting old run in &#34;%s&#34;&#39; % run_name)
+        shutil.rmtree(run_name)
+
+    logging.info(&#39;Calling git: git clone %s %s&#39; % (reagent_location, run_name))
+    # Note I skip logging the git output, it is not really needed and for some reason git 
+    # writes a lot to stderr, even if things go right. This would probably lead to confusion.
+    subprocess.check_call([&#39;git&#39;, &#39;clone&#39;, reagent_location, run_name])
+
+    # I use the try here not to catch the exception (notice the lack of except)
+    # but to ensure the log file is always copied into the generated run directory,
+    # even if an error occurs. This is really handy in case you generate a bunch
+    # of runs of which some fail to initialize. git has succeeded at this moment, 
+    # so the directory should always be there.
+    try:
+        logging.info(&#39;Creating directory for training data: %s/raw_data&#39; % run_name)
+        os.mkdir(&#39;%s/raw_data&#39; % run_name)
+
+        logging.info(&#39;Copying training data %s to %s/raw_data&#39; % (training_data_path, run_name))
+        shutil.copyfile(training_data_path, &#34;%s/raw_data/%s&#34; % (run_name, os.path.basename(training_data_path)))
+
+        logging.info(&#39;Building preprocessing JAR using Maven&#39;)
+        logged_check_call([&#39;mvn&#39;, &#39;-f&#39;, &#39;preprocessing/pom.xml&#39;, &#39;clean&#39;, &#39;package&#39;], cwd=run_name)
+
+        logging.info(&#39;Done building JAR&#39;)
+
+        logging.info(&#39;Done setting up run in %s&#39; % run_name)
+    finally:
+        logging.info(&#39;Copying log file to the run&#39;)
+        shutil.move(&#39;run_activity.log&#39;, &#39;%s/run_activity.log&#39; % run_name)
+
+def is_reagent_run():
+    &#39;&#39;&#39;
+    Check if the current directory is a valid reagent run. Return True if is, False if not. This function acutally calls the `check_run` function and checks for exceptions.
+    &#39;&#39;&#39;
+    try:
+        check_run()
+    except Exception:
+        return False
+    return True
+
+def check_run(skip_preprocess):
+    &#39;&#39;&#39;
+    Perform a number of sanity checks on a run. Note that this is performed in the current working directory. 
+
+    Args:
+       skip_preprocess (bool): whether or not the skip_process will be used. This performs an additional check to see if the run can be started without preprocess. 
+
+    TODO:
+
+    - Add option to pass path, allowing someone to check any path they want.  
+    &#39;&#39;&#39;
+    logging.info(&#39;Performing basic sanity check on the current run&#39;)
+
+    raw_data_file = glob.glob(&#34;raw_data/*json&#34;)
+    if len(raw_data_file) == 0:
+        raise ValueError(&#39;INVALID RUN: Could not find any raw data in raw_data/&#39;)
+    if len(raw_data_file) &gt; 1:
+        raise ValueError(&#39;INVALID RUN: Found multiple raw input files, not really sure what todo&#39;)
+    with open(raw_data_file[0]) as raw_training_string:
+        # Note that we get the ds from the first 100 lines of data. We do not read
+        # the whole dataset to save time. 
+        raw_training_first100 = [json.loads(next(raw_training_string)) for line in range(100)]
+        ds_values = json_normalize(raw_training_first100)[&#39;ds&#39;]
+        if len(ds_values.unique()) &gt; 1:
+            raise ValueError(&#39;INVALID RUN: Found multiple different ds values in the first 100 lines of data, not sure how to handle this&#39;)
+    if skip_preprocess:
+        if not os.path.isfile(&#39;training_data/state_features_norm.json&#39;) or \
+           not os.path.isfile(&#39;training_data/training_data.json&#39;) or \
+           not os.path.isfile(&#39;training_data/evaluation_data.json&#39;):
+               raise ValueError(&#39;INVALID RUN: some files missing to start run without running preprocessing&#39;)
+
+
+def _update_timeline_config(timeline_config, preprocessing_setting):
+    &#39;&#39;&#39;
+    Update timeline config with the required settings. 
+    
+    Input is a list/dict, output is an updated list/dict 
+
+    The base config is:
+
+        {
+          &#34;timeline&#34;: {
+            &#34;startDs&#34;: &#34;2019-01-01&#34;,
+            &#34;endDs&#34;: &#34;2019-01-01&#34;,
+            &#34;addTerminalStateRow&#34;: true,
+            &#34;actionDiscrete&#34;: true,
+            &#34;inputTableName&#34;: &#34;cartpole_discrete&#34;,
+            &#34;outputTableName&#34;: &#34;cartpole_discrete_training&#34;,
+            &#34;evalTableName&#34;: &#34;cartpole_discrete_eval&#34;,
+            &#34;numOutputShards&#34;: 1
+          },
+          &#34;query&#34;: {
+            &#34;tableSample&#34;: 100,
+            &#34;actions&#34;: [
+              &#34;0&#34;,
+              &#34;1&#34;
+            ]
+          }
+        }
+    
+    - NOT CHANGE addTerminalStateRow: add the terminal state at the end of the episode.
+      afaik this should always be true. 
+    - NOT CHANGE: actionDiscrete: whether or not to use discrete action space. For now keep this to
+      true. 
+    - NOT CHANGE numOutputShards: we are going to run stuff locally, stick to 1 shard for 
+    &#39;&#39;&#39;
+    # - startDs/endDs: start/stop unique identifier. Not entirely sure
+    #     what to use this for as a already have an episode counter and
+    #     it is not clear what is done with ds. For now just keep it constant
+    #     in the file and in the input data.
+    #        ----&gt; Comes from the raw input file, I assume that this always has 1 single ds value
+    #              ** Chose to get this from a config file now, much more robust and explicit. 
+    # - inputTableName: data with the input for the timeline
+    #   is a directory with the json input file. The name of the
+    #   is not important, spark will read whatever json file is 
+    #   there (I tested this). 
+    #       ---&gt; Is fixed name:  &#39;raw_data&#39;
+    # - outputTableName: the name of the directory where spark
+    #   should dump the training data
+    #       ---&gt; Can be named &#39;spark_raw_timeline_training&#39;
+    # - evalTableName: the name of the directory where spark should
+    #   dump the evaluation data
+    #       ---&gt; Can be &#39;spark_raw_timeline_evaluation&#39;
+    #   spark
+    #      - query:
+    #         - tableSample: ???. 
+    #             ---&gt; Keep constant until we know what this is
+    #         - actions: possible actions, in case of cartpole 0 and 1. 
+    #             ---&gt; Should be taken from input file, although the really dont to read all data for this
+    #                  **The solution is to start using a config file where the user specifies the value. 
+    #                    Making this explicit carries the least amount of risk and the greatest performance. 
+    replace_dict = {&#39;startDs&#39;:preprocessing_setting[&#39;ds_value&#39;], 
+                    &#39;endDs&#39;:preprocessing_setting[&#39;ds_value&#39;],
+                    &#39;inputTableName&#39;: &#39;raw_data&#39;,
+                    &#39;outputTableName&#39;: &#39;spark_raw_timeline_training&#39;,
+                    &#39;evalTableName&#39;: &#39;spark_raw_timeline_evaluation&#39;,
+                    &#39;actions&#39;: preprocessing_setting[&#39;actions&#39;]}
+    return replace_multiple_value_in_dict(timeline_config, replace_dict)
+
+def remove_dir_if_exists(path):
+    &#39;&#39;&#39;
+    Check if a directory exists, and remove if it does.  This also logs any action to the root logger.
+
+    Args:
+       path (string): the path to the directory to check and/or remove. 
+    &#39;&#39;&#39;
+    if os.path.isdir(path):
+        logging.info(&#39;Found directory %s, removing...&#39; % path)
+        shutil.rmtree(path)
+
+def remove_file_if_exists(path):
+    &#39;&#39;&#39;
+    Check if a file exists, and remove if it does.  This also logs any action to the root logger.
+
+    Args:
+       path (string): the path to the file to check and/or remove. 
+    &#39;&#39;&#39;
+    if os.path.isfile(path):
+        logging.info(&#39;Found file %s, removing...&#39; % path)
+        os.remove(path)
+
+def cleanup_preprocessing_artifacts():
+    &#39;&#39;&#39;
+    Remove all preprocessing artifacts related to preprocessing. This includes generated timeline data and spark artifacts. 
+    &#39;&#39;&#39;
+    logging.info(&#39;PREPROCESS: remove previously generated timeline data (training and eval)&#39;)
+    # Note that we ignore any errors, primarily due to the directories not existing. 
+    remove_dir_if_exists(&#39;spark_raw_timeline_training&#39;)
+    remove_dir_if_exists(&#39;spark_raw_timeline_evaluation&#39;)
+    remove_dir_if_exists(&#39;training_data&#39;)
+    # - Delete previous spark artifacts
+    remove_dir_if_exists(&#39;spark-warehouse&#39;)
+    remove_file_if_exists(&#39;derby.log&#39;)
+    remove_dir_if_exists(&#39;metastore_db&#39;)
+    remove_dir_if_exists(&#39;preprocessing/spark-warehouse&#39;)
+    remove_dir_if_exists(&#39;preprocessing/metastore_db&#39;)
+    remove_file_if_exists(&#39;preprocessing/derby.log&#39;)
+
+def cleanup_training_artifacts():
+    &#39;&#39;&#39;
+    Remove all training artifacts.
+    &#39;&#39;&#39;
+    remove_dir_if_exists(&#39;outputs&#39;)
+
+def read_timeline_config_template():
+    &#39;&#39;&#39;
+    Read the timeline config template that will form the basis for the timeline data generation. 
+
+    This file is read from ` ml/rl/workflow/sample_configs/discrete_action/timeline.json`
+    &#39;&#39;&#39;
+    logging.info(&#39;Reading timeline preprocessing config template from ml/rl/workflow/sample_configs/discrete_action/timeline.json&#39;)
+    with open(&#39;ml/rl/workflow/sample_configs/discrete_action/timeline.json&#39;) as timeline_config_json:
+        timeline_config = json.load(timeline_config_json)
+    return timeline_config
+
+def generate_timeline_data(preprocessing_settings, timeline_config_template):
+    &#39;&#39;&#39;
+    Generate timeline data based on the config template and the preprocessing settings. Note that these are merged and that the preprocessing settings take precedent. 
+    &#39;&#39;&#39;
+    timeline_config = _update_timeline_config(timeline_config_template, preprocessing_settings)
+    dump_json_and_log_content(timeline_config, &#39;current_timeline_config.json&#39;, &#39;Timeline preprocessing&#39;)
+
+    logging.info(&#39;Calling Spark to generate timeline data&#39;)
+    logged_check_call([&#39;spark-submit&#39;, 
+           &#39;--class&#39;, &#39;com.facebook.spark.rl.Preprocessor&#39;, &#39;preprocessing/target/rl-preprocessing-1.1.jar&#39;,
+           &#39;%s&#39; % json.dumps(timeline_config)])
+    logging.info(&#39;Success generating timeline data&#39;)
+
+    os.mkdir(&#39;training_data&#39;)
+    # - aggregate spark results into a single file (note that this does not seem to be needed in my case).
+    #   dump the result in `training_data/training_data.json` and `training_data/evaluation_data.json`.
+    training_parts = glob.glob(&#39;spark_raw_timeline_training/part*&#39;)
+    evaluation_parts = glob.glob(&#39;spark_raw_timeline_evaluation/part*&#39;)
+    if (len(training_parts) &gt; 1) or (len(evaluation_parts) &gt; 1):
+        # For now spark always drops 1 file, so I chose not to implement this yet. See:
+        #     https://stackoverflow.com/questions/24528278/stream-multiple-files-into-a-readable-object-in-python
+        # for a Python based way of doing this. 
+        logging.error(&#39;Found multiple part files from Spark, not yet implemented&#39;)
+        raise ValueError
+    else:
+        logging.info(&#39;Copying Spark part files to training and evaluation data&#39;)
+        shutil.copyfile(training_parts[0], &#39;training_data/training_data.json&#39;)
+        shutil.copyfile(evaluation_parts[0], &#39;training_data/evaluation_data.json&#39;)
+
+def read_normalisation_training_config_template():
+    &#39;&#39;&#39;
+    Read the normalisation parameters required. 
+    &#39;&#39;&#39;
+    logging.info(&#39;Reading normalisation preprocessing and training config template from ml/rl/workflow/sample_configs/discrete_action/dqn_example.json&#39;)
+    with open(&#39;ml/rl/workflow/sample_configs/discrete_action/dqn_example.json&#39;) as config_json:
+        config = json.load(config_json)
+    return config
+
+def generate_normalisation_params(config_template):
+    &#39;&#39;&#39;
+    Generate normalisation parameters
+
+    Args:
+        config_template (dict): nested dict structure. Provides the basis for the preprocessing. Note that this is the same template that is used for training the model. 
+    &#39;&#39;&#39;
+    # Change some settings in the config template
+    # NOTE this is the same template as used for training, but I don&#39;t think we need
+    # to replace all settings such as learning rate. 
+    #
+    # Some settings to discuss are:
+    # -  &#34;training_data_path&#34;: &#34;training_data/cartpole_discrete_timeline.json&#34;,
+    #      --&gt; needs to be set to &#34;training_data/training_data.json&#34;
+    # -  &#34;eval_data_path&#34;: &#34;training_data/cartpole_discrete_timeline_eval.json&#34;,
+    #      --&gt; needs to be set to &#34;training_data/training_data.json&#34;
+    # -  &#34;state_norm_data_path&#34;: &#34;training_data/state_features_norm.json&#34;,
+    #      --&gt; Fine
+    # -  &#34;model_output_path&#34;: &#34;outputs/&#34;,
+    #      ---&gt; Fine
+    # -  &#34;norm_params&#34;: {
+    #     &#34;output_dir&#34;: &#34;training_data/&#34;,
+    #     &#34;cols_to_norm&#34;: [
+    #       &#34;state_features&#34;
+    #     ],
+    #       --&gt; Settings seem to be OK
+    normalisation_config = replace_multiple_value_in_dict(config_template, {&#39;training_data_path&#39;: &#34;training_data/training_data.json&#34;, 
+                                                                            &#34;eval_data_path&#34;: &#34;training_data/evaluation_data.json&#34;})
+    dump_json_and_log_content(normalisation_config, &#39;current_normalisation_config.json&#39;, &#39;Normalisation config&#39;)
+
+    logging.info(&#39;Running normalisation&#39;)
+    logged_check_call([&#39;python&#39;, &#39;ml/rl/workflow/create_normalization_metadata.py&#39;, &#39;-p&#39;, &#39;current_normalisation_config.json&#39;])
+
+def train_model(config_template, training_settings):
+    &#39;&#39;&#39;
+    Run ReAgent based on the given config template and the training settings that are merged into that. The training settings take precedent. 
+
+    Currently only a DQN with discrete action is supported. 
+    &#39;&#39;&#39;
+    # Merge the given settings with a few that always need to be set. Notice that the
+    # order of the addition means that any settings in the training settings file will
+    # be overwritten by the hardcoded ones. 
+    update_dict = {**training_settings, **{&#39;training_data_path&#39;: &#34;training_data/training_data.json&#34;, 
+                    &#34;eval_data_path&#34;: &#34;training_data/evaluation_data.json&#34;}}
+    training_config = replace_multiple_value_in_dict(config_template, update_dict)
+                                                                            
+    dump_json_and_log_content(training_config, &#39;current_training_config.json&#39;, &#39;Training config&#39;)
+    logged_check_call([&#34;python&#34;, &#34;ml/rl/workflow/dqn_workflow.py&#34;, &#34;-p&#34;, &#34;current_training_config.json&#34;])
+
+
+def reagent_run(run_settings, skip_preprocess):
+    &#39;&#39;&#39;
+    Start a reagent run. 
+
+    Args:
+        run_settings (dict): a nested dict that provides the settings for this run. See [the readme file] for a description of the kind of parameters that can be passed here. The dict syntax should be very similar to the json syntax. Another good trick would be to read the settings from a file using `json.load`, this will yield the correct input for this function.  
+        skip_preprocess (bool): skip preprocessing or not. 
+
+    TODO:
+
+    - Add check for spark and provide meaningful error message
+    - Expand docstring
+    - Find out what the &#39;tableSample&#39; argument does
+    - Set a number of settings program wide instead of hardcoding, such as:
+        - The name of the raw data directory
+        - etc
+    - Add option to disable normalisation. This can supposedly be done by setting the 
+      mean and stdev to 0 and 1 respectively. 
+    - Allow setting of templates. Right now we can change any params we want, but that could
+      clutter the input run_settings quite a bit
+    - Add evaluation component. This needs to be custom for each type of data, bit harder
+      to implement generically. 
+    &#39;&#39;&#39;
+
+    # Perform a set of sanity checks before moving on. A failed check will throw an exception
+    check_run(skip_preprocess)
+
+    logging.info(&#39;========= START OF RUN ===============&#39;)
+
+    # All cleanup is done before all other actions. This is the only way I could get a 
+    # stable run. 
+
+    if not skip_preprocess:
+        cleanup_preprocessing_artifacts()
+    cleanup_training_artifacts()
+
+    timeline_config_template = read_timeline_config_template()
+    training_normalisation_config_template = read_normalisation_training_config_template()
+
+    if not skip_preprocess:
+        generate_timeline_data(run_settings[&#34;preprocessing&#34;], timeline_config_template)
+
+        #   + Create normalisation params
+        generate_normalisation_params(training_normalisation_config_template)
+    #
+    # Train model
+    train_model(training_normalisation_config_template, run_settings[&#34;training&#34;])
+    #
+    # Evaluate model
+    logging.info(&#39;=========== END OF RUN ===============&#39;)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="ReAgent_scripts.execute_subcommand.check_run"><code class="name flex">
+<span>def <span class="ident">check_run</span></span>(<span>skip_preprocess)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Perform a number of sanity checks on a run. Note that this is performed in the current working directory. </p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>skip_preprocess</code></strong> :&ensp;<code>bool</code></dt>
+<dd>whether or not the skip_process will be used. This performs an additional check to see if the run can be started without preprocess. </dd>
+</dl>
+<p>TODO:</p>
+<ul>
+<li>Add option to pass path, allowing someone to check any path they want.</li>
+</ul></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_run(skip_preprocess):
+    &#39;&#39;&#39;
+    Perform a number of sanity checks on a run. Note that this is performed in the current working directory. 
+
+    Args:
+       skip_preprocess (bool): whether or not the skip_process will be used. This performs an additional check to see if the run can be started without preprocess. 
+
+    TODO:
+
+    - Add option to pass path, allowing someone to check any path they want.  
+    &#39;&#39;&#39;
+    logging.info(&#39;Performing basic sanity check on the current run&#39;)
+
+    raw_data_file = glob.glob(&#34;raw_data/*json&#34;)
+    if len(raw_data_file) == 0:
+        raise ValueError(&#39;INVALID RUN: Could not find any raw data in raw_data/&#39;)
+    if len(raw_data_file) &gt; 1:
+        raise ValueError(&#39;INVALID RUN: Found multiple raw input files, not really sure what todo&#39;)
+    with open(raw_data_file[0]) as raw_training_string:
+        # Note that we get the ds from the first 100 lines of data. We do not read
+        # the whole dataset to save time. 
+        raw_training_first100 = [json.loads(next(raw_training_string)) for line in range(100)]
+        ds_values = json_normalize(raw_training_first100)[&#39;ds&#39;]
+        if len(ds_values.unique()) &gt; 1:
+            raise ValueError(&#39;INVALID RUN: Found multiple different ds values in the first 100 lines of data, not sure how to handle this&#39;)
+    if skip_preprocess:
+        if not os.path.isfile(&#39;training_data/state_features_norm.json&#39;) or \
+           not os.path.isfile(&#39;training_data/training_data.json&#39;) or \
+           not os.path.isfile(&#39;training_data/evaluation_data.json&#39;):
+               raise ValueError(&#39;INVALID RUN: some files missing to start run without running preprocessing&#39;)</code></pre>
+</details>
+</dd>
+<dt id="ReAgent_scripts.execute_subcommand.cleanup_preprocessing_artifacts"><code class="name flex">
+<span>def <span class="ident">cleanup_preprocessing_artifacts</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Remove all preprocessing artifacts related to preprocessing. This includes generated timeline data and spark artifacts.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cleanup_preprocessing_artifacts():
+    &#39;&#39;&#39;
+    Remove all preprocessing artifacts related to preprocessing. This includes generated timeline data and spark artifacts. 
+    &#39;&#39;&#39;
+    logging.info(&#39;PREPROCESS: remove previously generated timeline data (training and eval)&#39;)
+    # Note that we ignore any errors, primarily due to the directories not existing. 
+    remove_dir_if_exists(&#39;spark_raw_timeline_training&#39;)
+    remove_dir_if_exists(&#39;spark_raw_timeline_evaluation&#39;)
+    remove_dir_if_exists(&#39;training_data&#39;)
+    # - Delete previous spark artifacts
+    remove_dir_if_exists(&#39;spark-warehouse&#39;)
+    remove_file_if_exists(&#39;derby.log&#39;)
+    remove_dir_if_exists(&#39;metastore_db&#39;)
+    remove_dir_if_exists(&#39;preprocessing/spark-warehouse&#39;)
+    remove_dir_if_exists(&#39;preprocessing/metastore_db&#39;)
+    remove_file_if_exists(&#39;preprocessing/derby.log&#39;)</code></pre>
+</details>
+</dd>
+<dt id="ReAgent_scripts.execute_subcommand.cleanup_training_artifacts"><code class="name flex">
+<span>def <span class="ident">cleanup_training_artifacts</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Remove all training artifacts.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cleanup_training_artifacts():
+    &#39;&#39;&#39;
+    Remove all training artifacts.
+    &#39;&#39;&#39;
+    remove_dir_if_exists(&#39;outputs&#39;)</code></pre>
+</details>
+</dd>
+<dt id="ReAgent_scripts.execute_subcommand.generate_normalisation_params"><code class="name flex">
+<span>def <span class="ident">generate_normalisation_params</span></span>(<span>config_template)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Generate normalisation parameters</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>config_template</code></strong> :&ensp;<code>dict</code></dt>
+<dd>nested dict structure. Provides the basis for the preprocessing. Note that this is the same template that is used for training the model.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_normalisation_params(config_template):
+    &#39;&#39;&#39;
+    Generate normalisation parameters
+
+    Args:
+        config_template (dict): nested dict structure. Provides the basis for the preprocessing. Note that this is the same template that is used for training the model. 
+    &#39;&#39;&#39;
+    # Change some settings in the config template
+    # NOTE this is the same template as used for training, but I don&#39;t think we need
+    # to replace all settings such as learning rate. 
+    #
+    # Some settings to discuss are:
+    # -  &#34;training_data_path&#34;: &#34;training_data/cartpole_discrete_timeline.json&#34;,
+    #      --&gt; needs to be set to &#34;training_data/training_data.json&#34;
+    # -  &#34;eval_data_path&#34;: &#34;training_data/cartpole_discrete_timeline_eval.json&#34;,
+    #      --&gt; needs to be set to &#34;training_data/training_data.json&#34;
+    # -  &#34;state_norm_data_path&#34;: &#34;training_data/state_features_norm.json&#34;,
+    #      --&gt; Fine
+    # -  &#34;model_output_path&#34;: &#34;outputs/&#34;,
+    #      ---&gt; Fine
+    # -  &#34;norm_params&#34;: {
+    #     &#34;output_dir&#34;: &#34;training_data/&#34;,
+    #     &#34;cols_to_norm&#34;: [
+    #       &#34;state_features&#34;
+    #     ],
+    #       --&gt; Settings seem to be OK
+    normalisation_config = replace_multiple_value_in_dict(config_template, {&#39;training_data_path&#39;: &#34;training_data/training_data.json&#34;, 
+                                                                            &#34;eval_data_path&#34;: &#34;training_data/evaluation_data.json&#34;})
+    dump_json_and_log_content(normalisation_config, &#39;current_normalisation_config.json&#39;, &#39;Normalisation config&#39;)
+
+    logging.info(&#39;Running normalisation&#39;)
+    logged_check_call([&#39;python&#39;, &#39;ml/rl/workflow/create_normalization_metadata.py&#39;, &#39;-p&#39;, &#39;current_normalisation_config.json&#39;])</code></pre>
+</details>
+</dd>
+<dt id="ReAgent_scripts.execute_subcommand.generate_timeline_data"><code class="name flex">
+<span>def <span class="ident">generate_timeline_data</span></span>(<span>preprocessing_settings, timeline_config_template)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Generate timeline data based on the config template and the preprocessing settings. Note that these are merged and that the preprocessing settings take precedent.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_timeline_data(preprocessing_settings, timeline_config_template):
+    &#39;&#39;&#39;
+    Generate timeline data based on the config template and the preprocessing settings. Note that these are merged and that the preprocessing settings take precedent. 
+    &#39;&#39;&#39;
+    timeline_config = _update_timeline_config(timeline_config_template, preprocessing_settings)
+    dump_json_and_log_content(timeline_config, &#39;current_timeline_config.json&#39;, &#39;Timeline preprocessing&#39;)
+
+    logging.info(&#39;Calling Spark to generate timeline data&#39;)
+    logged_check_call([&#39;spark-submit&#39;, 
+           &#39;--class&#39;, &#39;com.facebook.spark.rl.Preprocessor&#39;, &#39;preprocessing/target/rl-preprocessing-1.1.jar&#39;,
+           &#39;%s&#39; % json.dumps(timeline_config)])
+    logging.info(&#39;Success generating timeline data&#39;)
+
+    os.mkdir(&#39;training_data&#39;)
+    # - aggregate spark results into a single file (note that this does not seem to be needed in my case).
+    #   dump the result in `training_data/training_data.json` and `training_data/evaluation_data.json`.
+    training_parts = glob.glob(&#39;spark_raw_timeline_training/part*&#39;)
+    evaluation_parts = glob.glob(&#39;spark_raw_timeline_evaluation/part*&#39;)
+    if (len(training_parts) &gt; 1) or (len(evaluation_parts) &gt; 1):
+        # For now spark always drops 1 file, so I chose not to implement this yet. See:
+        #     https://stackoverflow.com/questions/24528278/stream-multiple-files-into-a-readable-object-in-python
+        # for a Python based way of doing this. 
+        logging.error(&#39;Found multiple part files from Spark, not yet implemented&#39;)
+        raise ValueError
+    else:
+        logging.info(&#39;Copying Spark part files to training and evaluation data&#39;)
+        shutil.copyfile(training_parts[0], &#39;training_data/training_data.json&#39;)
+        shutil.copyfile(evaluation_parts[0], &#39;training_data/evaluation_data.json&#39;)</code></pre>
+</details>
+</dd>
+<dt id="ReAgent_scripts.execute_subcommand.is_reagent_run"><code class="name flex">
+<span>def <span class="ident">is_reagent_run</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Check if the current directory is a valid reagent run. Return True if is, False if not. This function acutally calls the <a title="ReAgent_scripts.execute_subcommand.check_run" href="#ReAgent_scripts.execute_subcommand.check_run"><code>check_run()</code></a> function and checks for exceptions.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_reagent_run():
+    &#39;&#39;&#39;
+    Check if the current directory is a valid reagent run. Return True if is, False if not. This function acutally calls the `check_run` function and checks for exceptions.
+    &#39;&#39;&#39;
+    try:
+        check_run()
+    except Exception:
+        return False
+    return True</code></pre>
+</details>
+</dd>
+<dt id="ReAgent_scripts.execute_subcommand.read_normalisation_training_config_template"><code class="name flex">
+<span>def <span class="ident">read_normalisation_training_config_template</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Read the normalisation parameters required.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_normalisation_training_config_template():
+    &#39;&#39;&#39;
+    Read the normalisation parameters required. 
+    &#39;&#39;&#39;
+    logging.info(&#39;Reading normalisation preprocessing and training config template from ml/rl/workflow/sample_configs/discrete_action/dqn_example.json&#39;)
+    with open(&#39;ml/rl/workflow/sample_configs/discrete_action/dqn_example.json&#39;) as config_json:
+        config = json.load(config_json)
+    return config</code></pre>
+</details>
+</dd>
+<dt id="ReAgent_scripts.execute_subcommand.read_timeline_config_template"><code class="name flex">
+<span>def <span class="ident">read_timeline_config_template</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Read the timeline config template that will form the basis for the timeline data generation. </p>
+<p>This file is read from <code>ml/rl/workflow/sample_configs/discrete_action/timeline.json</code></p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_timeline_config_template():
+    &#39;&#39;&#39;
+    Read the timeline config template that will form the basis for the timeline data generation. 
+
+    This file is read from ` ml/rl/workflow/sample_configs/discrete_action/timeline.json`
+    &#39;&#39;&#39;
+    logging.info(&#39;Reading timeline preprocessing config template from ml/rl/workflow/sample_configs/discrete_action/timeline.json&#39;)
+    with open(&#39;ml/rl/workflow/sample_configs/discrete_action/timeline.json&#39;) as timeline_config_json:
+        timeline_config = json.load(timeline_config_json)
+    return timeline_config</code></pre>
+</details>
+</dd>
+<dt id="ReAgent_scripts.execute_subcommand.reagent_init"><code class="name flex">
+<span>def <span class="ident">reagent_init</span></span>(<span>run_name, training_data_path, reagent_location, delete_old_run=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Initialize a reagent_run. This clones the git ReAgent repo, builds the preprocessing JAR and finally copies the <code>run_activity.log</code> file to the run directory. </p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>run_name</code></strong> :&ensp;<code>string</code></dt>
+<dd>name of the run. This is mainly used for git cloning. Note that this is not allowed to be a full path, just one string. This to reduce risk of someone accidently deleting a directory they do not want. This is caused by the fact that via <code>delete_old_run</code> this path can be deleted. </dd>
+<dt><strong><code>training_data_path</code></strong> :&ensp;<code>path</code></dt>
+<dd>the path to the training data file that contains the raw training data.</dd>
+<dt><strong><code>reagent_location</code></strong> :&ensp;<code>path</code></dt>
+<dd>location where ReAgent is installed. This is needed as a clone of this repo is made for each new run. </dd>
+<dt><strong><code>delete_old_run</code></strong> :&ensp;<code>bool</code></dt>
+<dd>in case a run with the given name already exists, should this be deleted or not.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reagent_init(run_name, training_data_path, reagent_location, delete_old_run=False):
+    &#39;&#39;&#39;
+    Initialize a reagent_run. This clones the git ReAgent repo, builds the preprocessing JAR and finally copies the `run_activity.log` file to the run directory. 
+
+    Args:
+       run_name (string): name of the run. This is mainly used for git cloning. Note that this is not allowed to be a full path, just one string. This to reduce risk of someone accidently deleting a directory they do not want. This is caused by the fact that via `delete_old_run` this path can be deleted. 
+       training_data_path (path): the path to the training data file that contains the raw training data.
+       reagent_location (path): location where ReAgent is installed. This is needed as a clone of this repo is made for each new run. 
+       delete_old_run (bool): in case a run with the given name already exists, should this be deleted or not. 
+    &#39;&#39;&#39;
+    # TODO:
+    # - Add check if git is installed and provide good error message
+    # - Expand docstring
+    logging.info(&#39;Setting up new ReAgent run in %s&#39; % run_name)
+    if delete_old_run and os.path.isdir(run_name):
+        logging.info(&#39;Deleting old run in &#34;%s&#34;&#39; % run_name)
+        shutil.rmtree(run_name)
+
+    logging.info(&#39;Calling git: git clone %s %s&#39; % (reagent_location, run_name))
+    # Note I skip logging the git output, it is not really needed and for some reason git 
+    # writes a lot to stderr, even if things go right. This would probably lead to confusion.
+    subprocess.check_call([&#39;git&#39;, &#39;clone&#39;, reagent_location, run_name])
+
+    # I use the try here not to catch the exception (notice the lack of except)
+    # but to ensure the log file is always copied into the generated run directory,
+    # even if an error occurs. This is really handy in case you generate a bunch
+    # of runs of which some fail to initialize. git has succeeded at this moment, 
+    # so the directory should always be there.
+    try:
+        logging.info(&#39;Creating directory for training data: %s/raw_data&#39; % run_name)
+        os.mkdir(&#39;%s/raw_data&#39; % run_name)
+
+        logging.info(&#39;Copying training data %s to %s/raw_data&#39; % (training_data_path, run_name))
+        shutil.copyfile(training_data_path, &#34;%s/raw_data/%s&#34; % (run_name, os.path.basename(training_data_path)))
+
+        logging.info(&#39;Building preprocessing JAR using Maven&#39;)
+        logged_check_call([&#39;mvn&#39;, &#39;-f&#39;, &#39;preprocessing/pom.xml&#39;, &#39;clean&#39;, &#39;package&#39;], cwd=run_name)
+
+        logging.info(&#39;Done building JAR&#39;)
+
+        logging.info(&#39;Done setting up run in %s&#39; % run_name)
+    finally:
+        logging.info(&#39;Copying log file to the run&#39;)
+        shutil.move(&#39;run_activity.log&#39;, &#39;%s/run_activity.log&#39; % run_name)</code></pre>
+</details>
+</dd>
+<dt id="ReAgent_scripts.execute_subcommand.reagent_run"><code class="name flex">
+<span>def <span class="ident">reagent_run</span></span>(<span>run_settings, skip_preprocess)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Start a reagent run. </p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>run_settings</code></strong> :&ensp;<code>dict</code></dt>
+<dd>a nested dict that provides the settings for this run. See [the readme file] for a description of the kind of parameters that can be passed here. The dict syntax should be very similar to the json syntax. Another good trick would be to read the settings from a file using <code>json.load</code>, this will yield the correct input for this function.
+</dd>
+<dt><strong><code>skip_preprocess</code></strong> :&ensp;<code>bool</code></dt>
+<dd>skip preprocessing or not. </dd>
+</dl>
+<p>TODO:</p>
+<ul>
+<li>Add check for spark and provide meaningful error message</li>
+<li>Expand docstring</li>
+<li>Find out what the 'tableSample' argument does</li>
+<li>Set a number of settings program wide instead of hardcoding, such as:<ul>
+<li>The name of the raw data directory</li>
+<li>etc</li>
+</ul>
+</li>
+<li>Add option to disable normalisation. This can supposedly be done by setting the
+mean and stdev to 0 and 1 respectively. </li>
+<li>Allow setting of templates. Right now we can change any params we want, but that could
+clutter the input run_settings quite a bit</li>
+<li>Add evaluation component. This needs to be custom for each type of data, bit harder
+to implement generically.</li>
+</ul></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reagent_run(run_settings, skip_preprocess):
+    &#39;&#39;&#39;
+    Start a reagent run. 
+
+    Args:
+        run_settings (dict): a nested dict that provides the settings for this run. See [the readme file] for a description of the kind of parameters that can be passed here. The dict syntax should be very similar to the json syntax. Another good trick would be to read the settings from a file using `json.load`, this will yield the correct input for this function.  
+        skip_preprocess (bool): skip preprocessing or not. 
+
+    TODO:
+
+    - Add check for spark and provide meaningful error message
+    - Expand docstring
+    - Find out what the &#39;tableSample&#39; argument does
+    - Set a number of settings program wide instead of hardcoding, such as:
+        - The name of the raw data directory
+        - etc
+    - Add option to disable normalisation. This can supposedly be done by setting the 
+      mean and stdev to 0 and 1 respectively. 
+    - Allow setting of templates. Right now we can change any params we want, but that could
+      clutter the input run_settings quite a bit
+    - Add evaluation component. This needs to be custom for each type of data, bit harder
+      to implement generically. 
+    &#39;&#39;&#39;
+
+    # Perform a set of sanity checks before moving on. A failed check will throw an exception
+    check_run(skip_preprocess)
+
+    logging.info(&#39;========= START OF RUN ===============&#39;)
+
+    # All cleanup is done before all other actions. This is the only way I could get a 
+    # stable run. 
+
+    if not skip_preprocess:
+        cleanup_preprocessing_artifacts()
+    cleanup_training_artifacts()
+
+    timeline_config_template = read_timeline_config_template()
+    training_normalisation_config_template = read_normalisation_training_config_template()
+
+    if not skip_preprocess:
+        generate_timeline_data(run_settings[&#34;preprocessing&#34;], timeline_config_template)
+
+        #   + Create normalisation params
+        generate_normalisation_params(training_normalisation_config_template)
+    #
+    # Train model
+    train_model(training_normalisation_config_template, run_settings[&#34;training&#34;])
+    #
+    # Evaluate model
+    logging.info(&#39;=========== END OF RUN ===============&#39;)</code></pre>
+</details>
+</dd>
+<dt id="ReAgent_scripts.execute_subcommand.remove_dir_if_exists"><code class="name flex">
+<span>def <span class="ident">remove_dir_if_exists</span></span>(<span>path)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Check if a directory exists, and remove if it does.
+This also logs any action to the root logger.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>path</code></strong> :&ensp;<code>string</code></dt>
+<dd>the path to the directory to check and/or remove.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remove_dir_if_exists(path):
+    &#39;&#39;&#39;
+    Check if a directory exists, and remove if it does.  This also logs any action to the root logger.
+
+    Args:
+       path (string): the path to the directory to check and/or remove. 
+    &#39;&#39;&#39;
+    if os.path.isdir(path):
+        logging.info(&#39;Found directory %s, removing...&#39; % path)
+        shutil.rmtree(path)</code></pre>
+</details>
+</dd>
+<dt id="ReAgent_scripts.execute_subcommand.remove_file_if_exists"><code class="name flex">
+<span>def <span class="ident">remove_file_if_exists</span></span>(<span>path)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Check if a file exists, and remove if it does.
+This also logs any action to the root logger.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>path</code></strong> :&ensp;<code>string</code></dt>
+<dd>the path to the file to check and/or remove.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remove_file_if_exists(path):
+    &#39;&#39;&#39;
+    Check if a file exists, and remove if it does.  This also logs any action to the root logger.
+
+    Args:
+       path (string): the path to the file to check and/or remove. 
+    &#39;&#39;&#39;
+    if os.path.isfile(path):
+        logging.info(&#39;Found file %s, removing...&#39; % path)
+        os.remove(path)</code></pre>
+</details>
+</dd>
+<dt id="ReAgent_scripts.execute_subcommand.train_model"><code class="name flex">
+<span>def <span class="ident">train_model</span></span>(<span>config_template, training_settings)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Run ReAgent based on the given config template and the training settings that are merged into that. The training settings take precedent. </p>
+<p>Currently only a DQN with discrete action is supported.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def train_model(config_template, training_settings):
+    &#39;&#39;&#39;
+    Run ReAgent based on the given config template and the training settings that are merged into that. The training settings take precedent. 
+
+    Currently only a DQN with discrete action is supported. 
+    &#39;&#39;&#39;
+    # Merge the given settings with a few that always need to be set. Notice that the
+    # order of the addition means that any settings in the training settings file will
+    # be overwritten by the hardcoded ones. 
+    update_dict = {**training_settings, **{&#39;training_data_path&#39;: &#34;training_data/training_data.json&#34;, 
+                    &#34;eval_data_path&#34;: &#34;training_data/evaluation_data.json&#34;}}
+    training_config = replace_multiple_value_in_dict(config_template, update_dict)
+                                                                            
+    dump_json_and_log_content(training_config, &#39;current_training_config.json&#39;, &#39;Training config&#39;)
+    logged_check_call([&#34;python&#34;, &#34;ml/rl/workflow/dqn_workflow.py&#34;, &#34;-p&#34;, &#34;current_training_config.json&#34;])</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="ReAgent_scripts" href="index.html">ReAgent_scripts</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="ReAgent_scripts.execute_subcommand.check_run" href="#ReAgent_scripts.execute_subcommand.check_run">check_run</a></code></li>
+<li><code><a title="ReAgent_scripts.execute_subcommand.cleanup_preprocessing_artifacts" href="#ReAgent_scripts.execute_subcommand.cleanup_preprocessing_artifacts">cleanup_preprocessing_artifacts</a></code></li>
+<li><code><a title="ReAgent_scripts.execute_subcommand.cleanup_training_artifacts" href="#ReAgent_scripts.execute_subcommand.cleanup_training_artifacts">cleanup_training_artifacts</a></code></li>
+<li><code><a title="ReAgent_scripts.execute_subcommand.generate_normalisation_params" href="#ReAgent_scripts.execute_subcommand.generate_normalisation_params">generate_normalisation_params</a></code></li>
+<li><code><a title="ReAgent_scripts.execute_subcommand.generate_timeline_data" href="#ReAgent_scripts.execute_subcommand.generate_timeline_data">generate_timeline_data</a></code></li>
+<li><code><a title="ReAgent_scripts.execute_subcommand.is_reagent_run" href="#ReAgent_scripts.execute_subcommand.is_reagent_run">is_reagent_run</a></code></li>
+<li><code><a title="ReAgent_scripts.execute_subcommand.read_normalisation_training_config_template" href="#ReAgent_scripts.execute_subcommand.read_normalisation_training_config_template">read_normalisation_training_config_template</a></code></li>
+<li><code><a title="ReAgent_scripts.execute_subcommand.read_timeline_config_template" href="#ReAgent_scripts.execute_subcommand.read_timeline_config_template">read_timeline_config_template</a></code></li>
+<li><code><a title="ReAgent_scripts.execute_subcommand.reagent_init" href="#ReAgent_scripts.execute_subcommand.reagent_init">reagent_init</a></code></li>
+<li><code><a title="ReAgent_scripts.execute_subcommand.reagent_run" href="#ReAgent_scripts.execute_subcommand.reagent_run">reagent_run</a></code></li>
+<li><code><a title="ReAgent_scripts.execute_subcommand.remove_dir_if_exists" href="#ReAgent_scripts.execute_subcommand.remove_dir_if_exists">remove_dir_if_exists</a></code></li>
+<li><code><a title="ReAgent_scripts.execute_subcommand.remove_file_if_exists" href="#ReAgent_scripts.execute_subcommand.remove_file_if_exists">remove_file_if_exists</a></code></li>
+<li><code><a title="ReAgent_scripts.execute_subcommand.train_model" href="#ReAgent_scripts.execute_subcommand.train_model">train_model</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

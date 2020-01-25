@@ -19,7 +19,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     entry_points = {
-         'console_scripts': ['reagent=command_line.reagent:main'],
+         'console_scripts': ['reagent=ReAgent_scripts.command_line:main'],
     },
     python_requires='>=3.6',
 )

@@ -1,4 +1,4 @@
 tags
 *.swp
 __pycache__
-
+run_activity.log

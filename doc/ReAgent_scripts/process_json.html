@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.4" />
+<title>ReAgent_scripts.process_json API documentation</title>
+<meta name="description" content="Implements a number of functions that read, dump and update the various json files. Mainly used to work with ReAgent config files." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>ReAgent_scripts.process_json</code></h1>
+</header>
+<section id="section-intro">
+<p>Implements a number of functions that read, dump and update the various json files. Mainly used to work with ReAgent config files.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#39;&#39;&#39;
+Implements a number of functions that read, dump and update the various json files. Mainly used to work with ReAgent config files.
+&#39;&#39;&#39;
+
+import json
+import logging
+
+# TODO;
+# - Add reading and dumping of json config files
+
+def dump_json_and_log_content(config, path, prefix = &#39;Config&#39;):
+    &#39;&#39;&#39;
+    Dump the content of a json file to disk, but also print it to the root logger. The main use is to both dump config files for ReAgent, but also show them in the `run_activity.log`. This makes it easy to track what exactly happened during a run. 
+
+    Args:
+       config (dict): a nested dict and list structure to dump. It is best to build this by reading config files from ReAgent using `json.load`. 
+       path (string): where to dump the file
+       prefix (string): prefix to add to log messages. This makes it easier to identify in the log file what config file was dumped. 
+    &#39;&#39;&#39;
+    logging.info(&#39;%s settings saved in %s.&#39; % (prefix, path))
+    # Showing the settings in the log file
+    for line in json.dumps(config, indent=2).split(&#39;\n&#39;):
+        logging.info(line)
+    with open(path, &#34;w&#34;) as write_file:
+        json.dump(config, write_file, indent=2)
+
+
+def replace_value_in_dict(input_dict, replace_key, new_value):
+    &#39;&#39;&#39;
+    Function to search and replace the value in a mixed list/dict structure
+
+    The function iterates over the list/dict structure `input_dict`, iterates over all the
+    dicts it finds, and replaces the values belonging to `replace_key` with
+    `new_value`. This makes it easy to just replace `learning_rate` anywhere in the config structure
+    without having to specify where exactly it is. 
+
+    Args:
+       input_dict (dict): a mixed dict and list structure in which we will replace values at the given keys
+       replace_key (string): the key for which to replace the value
+       new_value (varies): the new value which is to be substituted 
+
+    The function runs a sanity check to see if the type of the value you replace is equal to the old value. 
+
+    Note that this function is specifically meant to replace values in ReAgent config
+    list/dicts&#39;s and that the following limitations apply:
+
+      - The function does not iterate into lists containing dicts. Lists should be 
+        replaced as a whole.
+      - The implementation is *not* meant to be fast. So do not use this for replacing
+        values in large list/dict structures. In our case this is not really a problem
+        as the ReAgent config files are quite limited in sie. 
+    &#39;&#39;&#39;
+    output_dict = {}
+    for k, old_value in input_dict.items():
+        if isinstance(old_value, dict):
+            output_dict[k] = replace_value_in_dict(old_value, replace_key, new_value)
+        else: 
+            if k == replace_key:
+                if not isinstance(new_value, type(old_value)):
+                    raise ValueError(&#39;The new value is not the same object type as the old value&#39;)
+                output_dict[k] = new_value
+            else:
+                output_dict[k] = old_value
+    return output_dict
+
+def replace_multiple_value_in_dict(input_dict, replace_dict):
+    &#39;&#39;&#39;
+    A convenient wrapper around `replace_multiple_value_in_dict` that allows you to pass a dict of key-value pairs to replace
+
+    Args:
+       input_dict (dict): the nested mixed list-dict structure to replace values in. 
+       replace_dict: a 1d dictionary with key-value pairs to replace. 
+    &#39;&#39;&#39;
+    for k, v in replace_dict.items():
+        input_dict = replace_value_in_dict(input_dict, k, v)
+    return input_dict
+
+if __name__ == &#39;__main__&#39;:
+
+    def run_test(input_dict, key, new_value):
+        print(&#39;##### TEST on key %s replace by %s ######&#39; % (key, str(new_value)))
+        print(json.dumps(input_dict, indent=2))
+        print(&#39;Replaced:&#39;)
+        print(json.dumps(replace_value_in_dict(input_dict, key, new_value), indent=2))
+        print(&#39;\n&#39;)
+
+    simple_dict = {&#39;a&#39;: 20, &#39;b&#39;: 30}
+    nested_dict = {&#39;a&#39;: 20, &#39;b&#39;: {&#39;c&#39;: 20}}
+    nested_nested_dict = {&#39;a&#39;: {&#39;a&#39;: {&#39;c&#39;: 0.1, &#39;d&#39;: 50}, &#39;b&#39;: 30}, &#39;b&#39;: 30}
+    nested_dict_list = {&#39;a&#39;: [20, 30, 40], &#39;b&#39;: 30}
+
+    run_test(simple_dict, &#39;a&#39;, 999)
+    run_test(nested_dict, &#39;c&#39;, 999)
+    run_test(nested_nested_dict, &#39;b&#39;, 999)
+    run_test(nested_nested_dict, &#39;c&#39;, 0.01)
+    run_test(nested_dict_list, &#39;a&#39;, [999, 999])</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="ReAgent_scripts.process_json.dump_json_and_log_content"><code class="name flex">
+<span>def <span class="ident">dump_json_and_log_content</span></span>(<span>config, path, prefix='Config')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Dump the content of a json file to disk, but also print it to the root logger. The main use is to both dump config files for ReAgent, but also show them in the <code>run_activity.log</code>. This makes it easy to track what exactly happened during a run. </p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>config</code></strong> :&ensp;<code>dict</code></dt>
+<dd>a nested dict and list structure to dump. It is best to build this by reading config files from ReAgent using <code>json.load</code>. </dd>
+<dt><strong><code>path</code></strong> :&ensp;<code>string</code></dt>
+<dd>where to dump the file</dd>
+<dt><strong><code>prefix</code></strong> :&ensp;<code>string</code></dt>
+<dd>prefix to add to log messages. This makes it easier to identify in the log file what config file was dumped.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dump_json_and_log_content(config, path, prefix = &#39;Config&#39;):
+    &#39;&#39;&#39;
+    Dump the content of a json file to disk, but also print it to the root logger. The main use is to both dump config files for ReAgent, but also show them in the `run_activity.log`. This makes it easy to track what exactly happened during a run. 
+
+    Args:
+       config (dict): a nested dict and list structure to dump. It is best to build this by reading config files from ReAgent using `json.load`. 
+       path (string): where to dump the file
+       prefix (string): prefix to add to log messages. This makes it easier to identify in the log file what config file was dumped. 
+    &#39;&#39;&#39;
+    logging.info(&#39;%s settings saved in %s.&#39; % (prefix, path))
+    # Showing the settings in the log file
+    for line in json.dumps(config, indent=2).split(&#39;\n&#39;):
+        logging.info(line)
+    with open(path, &#34;w&#34;) as write_file:
+        json.dump(config, write_file, indent=2)</code></pre>
+</details>
+</dd>
+<dt id="ReAgent_scripts.process_json.replace_multiple_value_in_dict"><code class="name flex">
+<span>def <span class="ident">replace_multiple_value_in_dict</span></span>(<span>input_dict, replace_dict)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>A convenient wrapper around <a title="ReAgent_scripts.process_json.replace_multiple_value_in_dict" href="#ReAgent_scripts.process_json.replace_multiple_value_in_dict"><code>replace_multiple_value_in_dict()</code></a> that allows you to pass a dict of key-value pairs to replace</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>input_dict</code></strong> :&ensp;<code>dict</code></dt>
+<dd>the nested mixed list-dict structure to replace values in. </dd>
+<dt><strong><code>replace_dict</code></strong></dt>
+<dd>a 1d dictionary with key-value pairs to replace.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def replace_multiple_value_in_dict(input_dict, replace_dict):
+    &#39;&#39;&#39;
+    A convenient wrapper around `replace_multiple_value_in_dict` that allows you to pass a dict of key-value pairs to replace
+
+    Args:
+       input_dict (dict): the nested mixed list-dict structure to replace values in. 
+       replace_dict: a 1d dictionary with key-value pairs to replace. 
+    &#39;&#39;&#39;
+    for k, v in replace_dict.items():
+        input_dict = replace_value_in_dict(input_dict, k, v)
+    return input_dict</code></pre>
+</details>
+</dd>
+<dt id="ReAgent_scripts.process_json.replace_value_in_dict"><code class="name flex">
+<span>def <span class="ident">replace_value_in_dict</span></span>(<span>input_dict, replace_key, new_value)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Function to search and replace the value in a mixed list/dict structure</p>
+<p>The function iterates over the list/dict structure <code>input_dict</code>, iterates over all the
+dicts it finds, and replaces the values belonging to <code>replace_key</code> with
+<code>new_value</code>. This makes it easy to just replace <code>learning_rate</code> anywhere in the config structure
+without having to specify where exactly it is. </p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>input_dict</code></strong> :&ensp;<code>dict</code></dt>
+<dd>a mixed dict and list structure in which we will replace values at the given keys</dd>
+<dt><strong><code>replace_key</code></strong> :&ensp;<code>string</code></dt>
+<dd>the key for which to replace the value</dd>
+<dt><strong><code>new_value</code></strong> :&ensp;<code>varies</code></dt>
+<dd>the new value which is to be substituted </dd>
+</dl>
+<p>The function runs a sanity check to see if the type of the value you replace is equal to the old value. </p>
+<p>Note that this function is specifically meant to replace values in ReAgent config
+list/dicts's and that the following limitations apply:</p>
+<ul>
+<li>The function does not iterate into lists containing dicts. Lists should be
+replaced as a whole.</li>
+<li>The implementation is <em>not</em> meant to be fast. So do not use this for replacing
+values in large list/dict structures. In our case this is not really a problem
+as the ReAgent config files are quite limited in sie.</li>
+</ul></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def replace_value_in_dict(input_dict, replace_key, new_value):
+    &#39;&#39;&#39;
+    Function to search and replace the value in a mixed list/dict structure
+
+    The function iterates over the list/dict structure `input_dict`, iterates over all the
+    dicts it finds, and replaces the values belonging to `replace_key` with
+    `new_value`. This makes it easy to just replace `learning_rate` anywhere in the config structure
+    without having to specify where exactly it is. 
+
+    Args:
+       input_dict (dict): a mixed dict and list structure in which we will replace values at the given keys
+       replace_key (string): the key for which to replace the value
+       new_value (varies): the new value which is to be substituted 
+
+    The function runs a sanity check to see if the type of the value you replace is equal to the old value. 
+
+    Note that this function is specifically meant to replace values in ReAgent config
+    list/dicts&#39;s and that the following limitations apply:
+
+      - The function does not iterate into lists containing dicts. Lists should be 
+        replaced as a whole.
+      - The implementation is *not* meant to be fast. So do not use this for replacing
+        values in large list/dict structures. In our case this is not really a problem
+        as the ReAgent config files are quite limited in sie. 
+    &#39;&#39;&#39;
+    output_dict = {}
+    for k, old_value in input_dict.items():
+        if isinstance(old_value, dict):
+            output_dict[k] = replace_value_in_dict(old_value, replace_key, new_value)
+        else: 
+            if k == replace_key:
+                if not isinstance(new_value, type(old_value)):
+                    raise ValueError(&#39;The new value is not the same object type as the old value&#39;)
+                output_dict[k] = new_value
+            else:
+                output_dict[k] = old_value
+    return output_dict</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="ReAgent_scripts" href="index.html">ReAgent_scripts</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="ReAgent_scripts.process_json.dump_json_and_log_content" href="#ReAgent_scripts.process_json.dump_json_and_log_content">dump_json_and_log_content</a></code></li>
+<li><code><a title="ReAgent_scripts.process_json.replace_multiple_value_in_dict" href="#ReAgent_scripts.process_json.replace_multiple_value_in_dict">replace_multiple_value_in_dict</a></code></li>
+<li><code><a title="ReAgent_scripts.process_json.replace_value_in_dict" href="#ReAgent_scripts.process_json.replace_value_in_dict">replace_value_in_dict</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
