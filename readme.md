@@ -36,9 +36,9 @@ Help for init:
       -d, --debug           Do not buffer the Python errors, useful during
                             development
 
-Example usage:
-
-    reagent init cartpole_run generated_cartpole_data.json --delete-old-run 
+    Example usage:
+    
+        reagent init cartpole_run generated_cartpole_data.json --delete-old-run 
 
 Help for run:
 
