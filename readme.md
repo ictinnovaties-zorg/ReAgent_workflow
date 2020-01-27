@@ -18,9 +18,13 @@ Short example run:
 
 Help for init:
 
-    usage: reagent [-h] [-o] [-d] name training_data
+    usage: reagent init [-h] [-o] [-d] name training_data
     
-    Initialize new ReAgent run
+    This clones the repository in REAGENT_LOCATION, copies in 
+    the training data and builds the preprocessing JAR file using 
+    Maven. Finally, it copies the run log into the directory 
+    created by git. This log, run_activity.log, contains all 
+    the activity that took place in the run.
     
     positional arguments:
       name                  Name of the run
@@ -32,12 +36,18 @@ Help for init:
       -d, --debug           Do not buffer the Python errors, useful during
                             development
 
+Example usage:
+
+    reagent init cartpole_run generated_cartpole_data.json --delete-old-run 
+
 Help for run:
 
-    usage: reagent [-h] [-r RUN_SETTINGS] [-s] [-d] [--ps key [value ...]]
-                      [--ts key [value ...]]
+    usage: reagent run [-h] [-r RUN_SETTINGS] [-s] [-d] [--ps key value] [--ts key value]
     
-    Run ReAgent
+    Run ReAgent from the command line. 
+    
+    Note that if you want to pass multiple preprocessing 
+    or training settings, you can call `--ps/ts` multiple times. 
     
     optional arguments:
       -h, --help            show this help message and exit
@@ -50,6 +60,12 @@ Help for run:
                             development
       --ps key [value ...]  Pass preprocessing setting
       --ts key [value ...]  Pass traininging settings
+    
+    Example usage: 
+    
+        reagent run -r config.json --skip-preprocessing
+        reagent run -r config.json --s --ts learning_rate 0.1
+        reagent run -r config.json --s --ts learning_rate 0.1 --ts epochs 999
 
 # Setting up ReAgent
 By and large you can following the [installation guide](https://reagent.ai/installation.html#installation) provided with ReAgent. I do present a number of additional steps below. 
