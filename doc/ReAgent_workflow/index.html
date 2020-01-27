@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.7.4" />
-<title>ReAgent_scripts.parse_input_args API documentation</title>
-<meta name="description" content="Provides functions that parse the input arguments for the command line interface." />
+<title>ReAgent_workflow API documentation</title>
+<meta name="description" content="The main ReAgent_scipts module wraps a number of submodules. Below I list the function and content of each of these submodules …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -17,95 +17,53 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>ReAgent_scripts.parse_input_args</code></h1>
+<h1 class="title">Module <code>ReAgent_workflow</code></h1>
 </header>
 <section id="section-intro">
-<p>Provides functions that parse the input arguments for the command line interface.</p>
+<p>The main ReAgent_scipts module wraps a number of submodules. Below I list the function and content of each of these submodules. </p>
+<p>The main supported interface is the commandline interface in the command line submodule. However, you could laternatively use the interface in the <a title="ReAgent_workflow.execute_subcommand" href="execute_subcommand.html"><code>ReAgent_workflow.execute_subcommand</code></a> submodule to build your own ReAgent runs. A good place to start would be the commandline interface, as this shows how to use all the parts. Just reading the docs will not suffice though, you really need to read the full source code.</p>
+<p>Do note that this alternative interface is a very experimental feature, but potentially provides a more powerful interface. For example, running a 100 run gridsearch hyperparameter optimisation is more easy with this programmable interface. Just using <code>reagent_init</code> and <code>reagent_run</code> is more safe than delving into the other functions in the <a title="ReAgent_workflow.execute_subcommand" href="execute_subcommand.html"><code>ReAgent_workflow.execute_subcommand</code></a> submodule.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#39;&#39;&#39;
-Provides functions that parse the input arguments for the command line interface.
-&#39;&#39;&#39;
+<pre><code class="python"># Copyright 2020 Research group ICT innovations in Health Care, Windesheim University of Applied Sciences.
+&#34;&#34;&#34;
+The main ReAgent_scipts module wraps a number of submodules. Below I list the function and content of each of these submodules. 
 
-import os
-import argparse
+The main supported interface is the commandline interface in the command line submodule. However, you could laternatively use the interface in the `execute_subcommand` submodule to build your own ReAgent runs. A good place to start would be the commandline interface, as this shows how to use all the parts. Just reading the docs will not suffice though, you really need to read the full source code.
 
-#====== PARSING INPUT ARGUMENTS =========
-def _parse_init(args):
-    parser = argparse.ArgumentParser(description=&#39;Initialize new ReAgent run&#39;)
-    parser.add_argument(&#39;name&#39;, help=&#39;Name of the run&#39;)
-    parser.add_argument(&#39;training_data&#39;, help=&#39;Training data used for the run&#39;)
-    parser.add_argument(&#39;-o&#39;, &#39;--delete-old-run&#39;, help=&#39;Delete the run in `name` if it already exists. &#39;, action=&#39;store_true&#39;)
-    parser.add_argument(&#39;-d&#39;, &#39;--debug&#39;, help=&#39;Do not buffer the Python errors, useful during development&#39;, action=&#39;store_true&#39;)
-    init_args = parser.parse_args(args)
-    
-    if os.path.isabs(init_args.name):
-        logging.error(&#39;The name of the ReAgent run should be a single string, not an absolute path: %s&#39; % init_args.name)
-        exit(1)
-    if os.path.split(init_args.name)[0] != &#39;&#39;:
-        logging.error(&#39;The name of the ReAgent run should be a single string, not a relative path: %s&#39; % init_args.name)
-        exit(1)
+Do note that this alternative interface is a very experimental feature, but potentially provides a more powerful interface. For example, running a 100 run gridsearch hyperparameter optimisation is more easy with this programmable interface. Just using `reagent_init` and `reagent_run` is more safe than delving into the other functions in the `execute_subcommand` submodule. 
+&#34;&#34;&#34;
 
-    return init_args
-
-def _parse_run(args):
-    parser = argparse.ArgumentParser(description=&#39;Run ReAgent&#39;)
-    parser.add_argument(&#39;-r&#39;, &#39;--run_settings&#39;, help=&#39;Path to a settings file containing the global settings for this run&#39;)
-    parser.add_argument(&#39;-s&#39;, &#39;--skip-preprocessing&#39;, help=&#39;Skip preprocessing, and immediately launch the run &#39;, action=&#39;store_true&#39;)
-    parser.add_argument(&#39;-d&#39;, &#39;--debug&#39;, help=&#39;Do not buffer the Python errors, useful during development&#39;, action=&#39;store_true&#39;)
-    parser.add_argument(&#39;--ps&#39;, help=&#39;Pass preprocessing setting&#39;, nargs=&#39;+&#39;, action=&#39;append&#39;, metavar=(&#39;key&#39;,&#39;value&#39;))
-    parser.add_argument(&#39;--ts&#39;, help=&#39;Pass traininging settings&#39;, nargs=&#39;+&#39;, action=&#39;append&#39;, metavar=(&#39;key&#39;,&#39;value&#39;))
-    run_args = parser.parse_args(args)
-
-    return run_args
-
-subcommand_mapping = {&#39;init&#39;: _parse_init, &#39;run&#39;: _parse_run}
-
-def parse_arguments(args):
-    parser = argparse.ArgumentParser(description=&#39;Interact with ReAgent: an offline Reinforcement Learning library&#39;)
-    parser.add_argument(&#39;command&#39;, help=&#39;Subcommand to run&#39;)
-    subcommand = parser.parse_args(args[1:2])
-    if subcommand.command not in subcommand_mapping.keys():
-        print(&#39;Unknown subcommand: %s&#39; % subcommand.command)
-        parser.print_help()
-        exit(1)
-
-    parsing_function = subcommand_mapping[subcommand.command]
-    return subcommand.command, parsing_function(args[2:])</code></pre>
+# This is done to expose these functions at the top-level of the package
+from .execute_subcommand import reagent_init, reagent_run</code></pre>
 </details>
 </section>
 <section>
-</section>
-<section>
-</section>
-<section>
-<h2 class="section-title" id="header-functions">Functions</h2>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt id="ReAgent_scripts.parse_input_args.parse_arguments"><code class="name flex">
-<span>def <span class="ident">parse_arguments</span></span>(<span>args)</span>
-</code></dt>
+<dt><code class="name"><a title="ReAgent_workflow.command_line" href="command_line.html">ReAgent_workflow.command_line</a></code></dt>
 <dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def parse_arguments(args):
-    parser = argparse.ArgumentParser(description=&#39;Interact with ReAgent: an offline Reinforcement Learning library&#39;)
-    parser.add_argument(&#39;command&#39;, help=&#39;Subcommand to run&#39;)
-    subcommand = parser.parse_args(args[1:2])
-    if subcommand.command not in subcommand_mapping.keys():
-        print(&#39;Unknown subcommand: %s&#39; % subcommand.command)
-        parser.print_help()
-        exit(1)
-
-    parsing_function = subcommand_mapping[subcommand.command]
-    return subcommand.command, parsing_function(args[2:])</code></pre>
-</details>
+<section class="desc"><p>This submodule hosts the command line interface of ReAgent_workflow. It uses the functions defined in the other submodules to actually control ReAgent …</p></section>
+</dd>
+<dt><code class="name"><a title="ReAgent_workflow.execute_subcommand" href="execute_subcommand.html">ReAgent_workflow.execute_subcommand</a></code></dt>
+<dd>
+<section class="desc"><p>This submodule contains all the code that runs each of the subcommands. Currently these are <code>init</code> to initialize a run and <code>run</code> to actually run …</p></section>
+</dd>
+<dt><code class="name"><a title="ReAgent_workflow.logging_subprocess" href="logging_subprocess.html">ReAgent_workflow.logging_subprocess</a></code></dt>
+<dd>
+<section class="desc"><p>Implements a variant of <code>call</code> and <code>check_call</code> from the subprocess package that logs the output of the call. The extra side-effect is that apart from …</p></section>
+</dd>
+<dt><code class="name"><a title="ReAgent_workflow.process_json" href="process_json.html">ReAgent_workflow.process_json</a></code></dt>
+<dd>
+<section class="desc"><p>Implements a number of functions that read, dump and update the various json files. Mainly used to work with ReAgent config files.</p></section>
 </dd>
 </dl>
+</section>
+<section>
+</section>
+<section>
 </section>
 <section>
 </section>
@@ -116,14 +74,12 @@ def parse_arguments(args):
 <ul></ul>
 </div>
 <ul id="index">
-<li><h3>Super-module</h3>
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="ReAgent_scripts" href="index.html">ReAgent_scripts</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
-<li><code><a title="ReAgent_scripts.parse_input_args.parse_arguments" href="#ReAgent_scripts.parse_input_args.parse_arguments">parse_arguments</a></code></li>
+<li><code><a title="ReAgent_workflow.command_line" href="command_line.html">ReAgent_workflow.command_line</a></code></li>
+<li><code><a title="ReAgent_workflow.execute_subcommand" href="execute_subcommand.html">ReAgent_workflow.execute_subcommand</a></code></li>
+<li><code><a title="ReAgent_workflow.logging_subprocess" href="logging_subprocess.html">ReAgent_workflow.logging_subprocess</a></code></li>
+<li><code><a title="ReAgent_workflow.process_json" href="process_json.html">ReAgent_workflow.process_json</a></code></li>
 </ul>
 </li>
 </ul>

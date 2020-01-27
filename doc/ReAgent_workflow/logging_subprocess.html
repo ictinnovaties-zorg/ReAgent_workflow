@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.7.4" />
-<title>ReAgent_scripts.logging_subprocess API documentation</title>
+<title>ReAgent_workflow.logging_subprocess API documentation</title>
 <meta name="description" content="Implements a variant of `call` and `check_call` from the subprocess package that logs the output of the call. The extra side-effect is that apart from …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
@@ -17,7 +17,7 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>ReAgent_scripts.logging_subprocess</code></h1>
+<h1 class="title">Module <code>ReAgent_workflow.logging_subprocess</code></h1>
 </header>
 <section id="section-intro">
 <p>Implements a variant of <code>call</code> and <code>check_call</code> from the subprocess package that logs the output of the call. The extra side-effect is that apart from running the call, they also pipe the output to the root logger.</p>
@@ -25,32 +25,41 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#39;&#39;&#39;
+<pre><code class="python"># Copyright 2020 Research group ICT innovations in Health Care, Windesheim University of Applied Sciences.
+&#39;&#39;&#39;
 Implements a variant of `call` and `check_call` from the subprocess package that logs the output of the call. The extra side-effect is that apart from running the call, they also pipe the output to the root logger. 
 &#39;&#39;&#39;
-
-# Adapted from https://gist.github.com/bgreenlee/1402841
 
 import subprocess
 import select
 from logging import DEBUG, ERROR, INFO, getLogger
-import argparse
-import os
 
 def logged_check_call(*args, **kwargs):
+    &#34;&#34;&#34;
+    Run the call, but also log any output to the root logger. Mimics the behavior of check_call, i.e. try and run the code and returning CalledProcessError if it does not work. 
+
+    Note that this acts as a wrapper around `logged_call` and simply passes any of the arguments and keyword arguments on to that function. 
+    &#34;&#34;&#34;
     return_val = logged_call(*args, **kwargs)
     if return_val != 0:
         raise subprocess.CalledProcessError(return_val, *args)
 
 def logged_call(popenargs, logger=getLogger(&#39;&#39;), stdout_log_level=INFO, stderr_log_level=ERROR, **kwargs):
     &#34;&#34;&#34;
-    Variant of subprocess.call that accepts a logger instead of stdout/stderr,
+    Variant of subprocess.call ([adapted from here](https://gist.github.com/bgreenlee/1402841)) that accepts a logger instead of stdout/stderr,
     and logs stdout messages via logger.debug and stderr messages via
     logger.error.
 
-    Note that this function defaults to the root logger (getLogger(&#39;&#39;))
+    Args:
+        popenargs (list): list of strings that together make up the command. See `subprocess.call` for more details.
+        logger (logger): a logger to pass the output of the command to, this defaults to the root logger (`logging.getLogger(&#39;&#39;)`).
+        stdout_log_level (int): the log level used for stdout. See the logging module for more details.
+        stderr_log_level (int): the log level used for stderr. See the logging module for more details.
+
+    Note that the remaing keyword arguments (`**kwargs`) will be passed on to `Popen`.
 
     TODO:
+
     - Remove b&#39;&#39; before the captured logging output
     &#34;&#34;&#34;
     child = subprocess.Popen(popenargs, stdout=subprocess.PIPE,
@@ -71,54 +80,7 @@ def logged_call(popenargs, logger=getLogger(&#39;&#39;), stdout_log_level=INFO, 
 
     check_io()  # check again to catch anything after the process exits
 
-    return child.wait()
-
-
-# tests, plunked in here for convenience
-
-#import sys
-#import unittest2
-#import logging_subprocess
-#import logging
-#from StringIO import StringIO
-#
-#
-#class LoggingSubprocessTest(unittest2.TestCase):
-#    def setUp(self):
-#        self.buffer = StringIO()
-#        self.logger = logging.getLogger(&#39;logging_subprocess_test&#39;)
-#        self.logger.setLevel(logging.DEBUG)
-#        self.logHandler = logging.StreamHandler(self.buffer)
-#        formatter = logging.Formatter(&#34;%(levelname)s-%(message)s&#34;)
-#        self.logHandler.setFormatter(formatter)
-#        self.logger.addHandler(self.logHandler)
-#
-#    def test_log_stdout(self):
-#        logging_subprocess.call([sys.executable, &#34;-c&#34;,
-#                                &#34;print &#39;foo&#39;&#34;], self.logger)
-#        self.assertIn(&#39;DEBUG-foo&#39;, self.buffer.getvalue())
-#
-#    def test_log_stderr(self):
-#        logging_subprocess.call([sys.executable, &#34;-c&#34;,
-#                                &#39;import sys; sys.stderr.write(&#34;foo\\n&#34;)&#39;],
-#                                self.logger)
-#        self.assertIn(&#39;ERROR-foo&#39;, self.buffer.getvalue())
-#
-#    def test_custom_stdout_log_level(self):
-#        logging_subprocess.call([sys.executable, &#34;-c&#34;,
-#                                &#34;print &#39;foo&#39;&#34;], self.logger,
-#                                stdout_log_level=logging.INFO)
-#        self.assertIn(&#39;INFO-foo&#39;, self.buffer.getvalue())
-#
-#    def test_custom_stderr_log_level(self):
-#        logging_subprocess.call([sys.executable, &#34;-c&#34;,
-#                                &#39;import sys; sys.stderr.write(&#34;foo\\n&#34;)&#39;],
-#                                self.logger,
-#                                stderr_log_level=logging.WARNING)
-#        self.assertIn(&#39;WARNING-foo&#39;, self.buffer.getvalue())
-#
-#if __name__ == &#34;__main__&#34;:
-#    unittest2.main()</code></pre>
+    return child.wait()</code></pre>
 </details>
 </section>
 <section>
@@ -128,29 +90,49 @@ def logged_call(popenargs, logger=getLogger(&#39;&#39;), stdout_log_level=INFO, 
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="ReAgent_scripts.logging_subprocess.logged_call"><code class="name flex">
+<dt id="ReAgent_workflow.logging_subprocess.logged_call"><code class="name flex">
 <span>def <span class="ident">logged_call</span></span>(<span>popenargs, logger=&lt;RootLogger root (INFO)&gt;, stdout_log_level=20, stderr_log_level=40, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Variant of subprocess.call that accepts a logger instead of stdout/stderr,
+<section class="desc"><p>Variant of subprocess.call (<a href="https://gist.github.com/bgreenlee/1402841">adapted from here</a>) that accepts a logger instead of stdout/stderr,
 and logs stdout messages via logger.debug and stderr messages via
 logger.error.</p>
-<p>Note that this function defaults to the root logger (getLogger(''))</p>
-<p>TODO:
-- Remove b'' before the captured logging output</p></section>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>popenargs</code></strong> :&ensp;<code>list</code></dt>
+<dd>list of strings that together make up the command. See <code>subprocess.call</code> for more details.</dd>
+<dt><strong><code>logger</code></strong> :&ensp;<code>logger</code></dt>
+<dd>a logger to pass the output of the command to, this defaults to the root logger (<code>logging.getLogger('')</code>).</dd>
+<dt><strong><code>stdout_log_level</code></strong> :&ensp;<code>int</code></dt>
+<dd>the log level used for stdout. See the logging module for more details.</dd>
+<dt><strong><code>stderr_log_level</code></strong> :&ensp;<code>int</code></dt>
+<dd>the log level used for stderr. See the logging module for more details.</dd>
+</dl>
+<p>Note that the remaing keyword arguments (<code>**kwargs</code>) will be passed on to <code>Popen</code>.</p>
+<p>TODO:</p>
+<ul>
+<li>Remove b'' before the captured logging output</li>
+</ul></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def logged_call(popenargs, logger=getLogger(&#39;&#39;), stdout_log_level=INFO, stderr_log_level=ERROR, **kwargs):
     &#34;&#34;&#34;
-    Variant of subprocess.call that accepts a logger instead of stdout/stderr,
+    Variant of subprocess.call ([adapted from here](https://gist.github.com/bgreenlee/1402841)) that accepts a logger instead of stdout/stderr,
     and logs stdout messages via logger.debug and stderr messages via
     logger.error.
 
-    Note that this function defaults to the root logger (getLogger(&#39;&#39;))
+    Args:
+        popenargs (list): list of strings that together make up the command. See `subprocess.call` for more details.
+        logger (logger): a logger to pass the output of the command to, this defaults to the root logger (`logging.getLogger(&#39;&#39;)`).
+        stdout_log_level (int): the log level used for stdout. See the logging module for more details.
+        stderr_log_level (int): the log level used for stderr. See the logging module for more details.
+
+    Note that the remaing keyword arguments (`**kwargs`) will be passed on to `Popen`.
 
     TODO:
+
     - Remove b&#39;&#39; before the captured logging output
     &#34;&#34;&#34;
     child = subprocess.Popen(popenargs, stdout=subprocess.PIPE,
@@ -174,16 +156,22 @@ logger.error.</p>
     return child.wait()</code></pre>
 </details>
 </dd>
-<dt id="ReAgent_scripts.logging_subprocess.logged_check_call"><code class="name flex">
+<dt id="ReAgent_workflow.logging_subprocess.logged_check_call"><code class="name flex">
 <span>def <span class="ident">logged_check_call</span></span>(<span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Run the call, but also log any output to the root logger. Mimics the behavior of check_call, i.e. try and run the code and returning CalledProcessError if it does not work. </p>
+<p>Note that this acts as a wrapper around <a title="ReAgent_workflow.logging_subprocess.logged_call" href="#ReAgent_workflow.logging_subprocess.logged_call"><code>logged_call()</code></a> and simply passes any of the arguments and keyword arguments on to that function.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def logged_check_call(*args, **kwargs):
+    &#34;&#34;&#34;
+    Run the call, but also log any output to the root logger. Mimics the behavior of check_call, i.e. try and run the code and returning CalledProcessError if it does not work. 
+
+    Note that this acts as a wrapper around `logged_call` and simply passes any of the arguments and keyword arguments on to that function. 
+    &#34;&#34;&#34;
     return_val = logged_call(*args, **kwargs)
     if return_val != 0:
         raise subprocess.CalledProcessError(return_val, *args)</code></pre>
@@ -202,13 +190,13 @@ logger.error.</p>
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="ReAgent_scripts" href="index.html">ReAgent_scripts</a></code></li>
+<li><code><a title="ReAgent_workflow" href="index.html">ReAgent_workflow</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="ReAgent_scripts.logging_subprocess.logged_call" href="#ReAgent_scripts.logging_subprocess.logged_call">logged_call</a></code></li>
-<li><code><a title="ReAgent_scripts.logging_subprocess.logged_check_call" href="#ReAgent_scripts.logging_subprocess.logged_check_call">logged_check_call</a></code></li>
+<li><code><a title="ReAgent_workflow.logging_subprocess.logged_call" href="#ReAgent_workflow.logging_subprocess.logged_call">logged_call</a></code></li>
+<li><code><a title="ReAgent_workflow.logging_subprocess.logged_check_call" href="#ReAgent_workflow.logging_subprocess.logged_check_call">logged_check_call</a></code></li>
 </ul>
 </li>
 </ul>
