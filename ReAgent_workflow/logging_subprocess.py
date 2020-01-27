@@ -1,3 +1,4 @@
+# Copyright 2020 Research group ICT innovations in Health Care, Windesheim University of Applied Sciences.
 '''
 Implements a variant of `call` and `check_call` from the subprocess package that logs the output of the call. The extra side-effect is that apart from running the call, they also pipe the output to the root logger. 
 '''

@@ -1,3 +1,4 @@
+# Copyright 2020 Research group ICT innovations in Health Care, Windesheim University of Applied Sciences.
 '''
 Implements a number of functions that read, dump and update the various json files. Mainly used to work with ReAgent config files.
 '''

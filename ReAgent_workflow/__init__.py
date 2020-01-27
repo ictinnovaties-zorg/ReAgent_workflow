@@ -1,3 +1,4 @@
+# Copyright 2020 Research group ICT innovations in Health Care, Windesheim University of Applied Sciences.
 """
 The main ReAgent_scipts module wraps a number of submodules. Below I list the function and content of each of these submodules. 
 

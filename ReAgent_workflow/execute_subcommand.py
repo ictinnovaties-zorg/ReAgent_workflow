@@ -1,3 +1,4 @@
+# Copyright 2020 Research group ICT innovations in Health Care, Windesheim University of Applied Sciences.
 """
 This submodule contains all the code that runs each of the subcommands. Currently these are `init` to initialize a run and `run` to actually run ReAgent. These are executed using the `reagent_init` and `reagent_run` Python functions respectively. 
 

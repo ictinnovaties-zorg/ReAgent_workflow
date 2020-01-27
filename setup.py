@@ -1,3 +1,5 @@
+# Copyright 2020 Research group ICT innovations in Health Care, Windesheim University of Applied Sciences.
+
 import setuptools
 
 with open("readme.md", "r") as fh:

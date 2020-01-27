@@ -1,3 +1,4 @@
+# Copyright 2020 Research group ICT innovations in Health Care, Windesheim University of Applied Sciences.
 '''
 This submodule hosts the command line interface of ReAgent_workflow. It uses the functions defined in the other submodules to actually control ReAgent. 
 

@@ -6,7 +6,7 @@ A number of parts of a ReAgent workflow steps are provided:
 - `init` initialize a ReAgent run
 - `run` run ReAgent, with or without preprocessing and allowing you to change the settings of the workflow (e.g. learning rate)
 
-The rest of this introduction will show how to setup ReAgent in order to work effectively with this script. You can find the [technical documentation of the code here](https://htmlpreview.github.io/?https://github.com/PaulHiemstra/ReAgent_scripts/blob/master/doc/ReAgent_scripts/index.html). 
+The rest of this introduction will show how to setup ReAgent in order to work effectively with this script. You can find the [technical documentation of the code here](https://htmlpreview.github.io/?https://github.com/ictinnovaties-zorg/ReAgent_workflow/blob/master/doc/ReAgent_scripts/index.html). 
 
 # TL;DR
 Short example run:
@@ -178,7 +178,5 @@ This will not run the preprocessing, and retrain the model with the new learning
 
 which yields the exact same result. 
 
-# Notes
-De `export` commandos moeten in je aan het conda env toevoegen. Hoe je dit doet [staat hier](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#macos-and-linux), de locatie van het env is bijvoorbeeld `/home/paul/anaconda3/envs/ReAgent`. 
-
-    - De `JAVA_HOME` heeft standaard al een waarde. Voorlopig laat ik die even staan. 
+# Copyright
+Copyright 2020 Research group ICT innovations in Health Care, Windesheim University of Applied Sciences. 
