@@ -1,5 +1,5 @@
 '''
-This submodule hosts the command line interface of ReAgent_scripts. It uses the functions defined in the other submodules to actually control ReAgent. 
+This submodule hosts the command line interface of ReAgent_workflow. It uses the functions defined in the other submodules to actually control ReAgent. 
 
 This is the main interface that controls ReAgent. This is also a good place to start if you want to create your own workflow scripts in Python. 
 '''
@@ -17,7 +17,7 @@ import json
 import argparse
 from pathlib import Path
 
-from ReAgent_scripts import reagent_init, reagent_run
+from ReAgent_workflow import reagent_init, reagent_run
 
 # =========== LOGGER ============
 # Setting up the logging for this script
