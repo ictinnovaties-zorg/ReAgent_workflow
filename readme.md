@@ -6,7 +6,7 @@ A number of parts of a ReAgent workflow steps are provided:
 - `init` initialize a ReAgent run
 - `run` run ReAgent, with or without preprocessing and allowing you to change the settings of the workflow (e.g. learning rate)
 
-The rest of this introduction will show how to setup ReAgent in order to work effectively with this script. You can find the [technical documentation of the code here](https://htmlpreview.github.io/?https://github.com/ictinnovaties-zorg/ReAgent_workflow/blob/master/doc/ReAgent_scripts/index.html). 
+The rest of this introduction will show how to setup ReAgent in order to work effectively with this script. You can find the [technical documentation of the code here](https://htmlpreview.github.io/?https://github.com/ictinnovaties-zorg/ReAgent_workflow/blob/master/doc/ReAgent_workflow/index.html). 
 
 # TL;DR
 Short example run:
@@ -18,18 +18,19 @@ Short example run:
 
 Help for init:
 
-    usage: reagent [-h] [--delete-old-run] [--debug] name training_data
+    usage: reagent [-h] [-o] [-d] name training_data
     
     Initialize new ReAgent run
     
     positional arguments:
-      name              Name of the run
-      training_data     Training data used for the run
+      name                  Name of the run
+      training_data         Training data used for the run
     
     optional arguments:
-      -h, --help        show this help message and exit
-      --delete-old-run  Delete the run in `name` if it already exists.
-      --debug           Do not buffer the Python errors, useful during development
+      -h, --help            show this help message and exit
+      -o, --delete-old-run  Delete the run in `name` if it already exists.
+      -d, --debug           Do not buffer the Python errors, useful during
+                            development
 
 Help for run:
 
