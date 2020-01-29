@@ -1,20 +1,29 @@
-# What is this repo
-This repo contains a set of common tasks that you need in order to run [ReAgent](https://reagent.ai/) effectively from the command line. This script is useful as this is not straightforward using ReAgent out of the box. 
+# What is ReAgent_workflow
+`ReAgent_workflow` cprovides a set of common tasks that you need to perform in order to run [ReAgent](https://reagent.ai/) effectively. These include:
 
-A number of parts of a ReAgent workflow steps are provided:
+- Setting up new runs
+- preprocessing raw data into timeline data
+- Launching runs
+- Easily change settings in runs
+- Track logging information regarding what has been done
+
+The main interface is a commandline script called `reagent`. This uses `git` style subcommands:
 
 - `init` initialize a ReAgent run
-- `run` run ReAgent, with or without preprocessing and allowing you to change the settings of the workflow (e.g. learning rate)
+- `run` run ReAgent
 
-The rest of this introduction will show how to setup ReAgent in order to work effectively with this script. You can find the [technical documentation of the code here](https://htmlpreview.github.io/?https://github.com/ictinnovaties-zorg/ReAgent_workflow/blob/master/doc/ReAgent_workflow/index.html). 
+The rest of this readme will describe how to setup `ReAgent_workflow`, and how to work with it. 
+
+You can find the [technical documentation of the code here](https://htmlpreview.github.io/?https://github.com/ictinnovaties-zorg/ReAgent_workflow/blob/master/doc/ReAgent_workflow/index.html), this is mainly useful if you want to write your own Python scripts that work with `ReAgent`. 
 
 # TL;DR
-Short example run:
+Short example run from the command line:
 
     reagent init cartpole_run generated_cartpole_data.json --delete-old-run 
     cp example_full_run_config.json cartpole_run
     cd cartpole_run
     reagent run -r example_full_run_config.json
+    reagent run -r example_full_run_config.json --ts learning_rate 0.1
 
 Help for init:
 
@@ -37,7 +46,7 @@ Help for init:
                             development
 
     Example usage:
-    
+
         reagent init cartpole_run generated_cartpole_data.json --delete-old-run 
 
 Help for run:
@@ -68,7 +77,7 @@ Help for run:
         reagent run -r config.json --s --ts learning_rate 0.1 --ts epochs 999
 
 # Setting up ReAgent
-By and large you can following the [installation guide](https://reagent.ai/installation.html#installation) provided with ReAgent. I do present a number of additional steps below. 
+By and large you can follow the [installation guide](https://reagent.ai/installation.html#installation) provided with ReAgent. I do present a number of additional steps below. 
 
 ## Getting ReAgent
 The best way to get ReAgent is to simply clone the git repo:
@@ -150,9 +159,16 @@ will read the file and replace learning rate and number of epochs. **NOTE** you 
 ## Contents of a run
 The resulting run contains a number of of key files that tell you about the settings and the results:
 
-- `outputs`
-- `current_etc` etc
-- etc
+- `outputs`, contains the training results. 
+- `training_data`, contains the input training and evaluation data
+	- `training_data/training_data.json` timeline training data to train the model on
+	- `training_data/evaluation_data.json` evaluation data in timeline format. 
+	- `training_data/state_features_norm.json` normalisation parameters used during training
+- `current_normalisation_config.json` settings used to generate the normalisation parameters
+- `current_training_config.json` settings used to train the model
+- `current_timeline_config.json` settings used to generate timeline data
+- `spark_raw_timeline_{training/evaluation` the raw results files from spark in timelineformat
+- `spark-warehouse derby.log metastore_db` spark files
 
 ## ReAgent run settings file
 The following is an example of a settings file:
@@ -171,7 +187,7 @@ The following is an example of a settings file:
 it contains two sections: `preprocessing` and `training`. 
 
 - The first allows you to change preprocessing settings in the `preprocessing` template (`ml/rl/workflow/sample_configs/discrete_action/timeline.json`). The two settings, `ds_value` and `actions`, are things you probably need to change for your run.  
-- The second allows you to change settings for the training phase. Any setting 
+- The second allows you to change settings for the training phase. Any setting in `'ml/rl/workflow/sample_configs/discrete_action/dqn_example.json` can be changed. 
 
 Note that it does not matter how deeply nested any of the settings are, the replacement algorithm will recursively go through the entire config tree and replace the value. For example, `learning_rate` is actually one level deep (`training > learning_rate`), but there is no need to mimic this depth. Simply pass `learning_rate` and the script will do the rest. 
 
