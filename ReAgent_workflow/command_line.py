@@ -77,6 +77,13 @@ def _get_run_settings(args):
     else:
         # Empty placeholder is no settings file is passed
         run_settings = {'preprocessing': {}, 'training': {}}
+    # if a file was read, there is a chance either of the subsections is missing
+    # simply add an empty one if it is missing. 
+    if 'preprocessing' not in run_settings.keys():
+        run_settings['preprocessing'] = {}
+    if 'training' not in run_settings.keys():
+        run_settings['training'] = {}
+
     # merge --ts and --ps
     if args.ts is not None:
         # Merge settings from settings file with those passed via --ts on the command line
