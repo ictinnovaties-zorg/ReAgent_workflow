@@ -210,6 +210,10 @@ def reagent_df_to_json_lines(df, ds_value, mdp_id_var, sequence_number_var,
         indent (int): should newlines be introduced to nicely format the json. Primarily useful for debugging, not for dumping the data for ReAgent. 
         progress (bool): should a progress bar be drawn
         json_path (string): which path should the json be saved to. Default is `None`, which returns an array with jsonlines. 
+
+    TODO:
+    - _create_reagent_record now creates the string needed for dumping. Maybe a cleaner approach would be to let
+      that function generate a dictlist, and convert to string just before dumping. 
     '''
     possible_actions = [str(action) for action in possible_actions]
     if progress:
@@ -225,8 +229,7 @@ def reagent_df_to_json_lines(df, ds_value, mdp_id_var, sequence_number_var,
     else:
         with open(json_path, 'w') as json_file:
             for json_line in json_lines:
-                json.dump(json_line, json_file)
-                json_file.write('\n')
+                json_file.write(json_line + '\n')
         return 'Dumped json data in %s' % json_path
 
 if __name__ == '__main__':
