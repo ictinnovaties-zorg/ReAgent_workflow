@@ -76,6 +76,15 @@ Help for run:
         reagent run -r config.json --s --ts learning_rate 0.1
         reagent run -r config.json --s --ts learning_rate 0.1 --ts epochs 999
 
+# FAQ
+`ReAgent_workflow` is in its early stages of development, so the experience of installation and running is not quite fire-and-forget. Below I list some common issues, and what you can do to fix them. 
+
+#### I get a `cannot find module ml.core` error
+This means that you either have not installed `ReAgent` using `pip install .`, or that you are not running `reagent run` from the directory that `reagent init ` created. ReAgent needs to run from a full copy of the source files, at least that was the way I could get it working. 
+
+#### I get a `cannot find module xxxxx error`
+The installation instructions are not always rock solid, so there could be some missing libraries. Simply running `pip install xxxxx` in the conda environment where you run ReAgent from should often fix this issue. 
+
 # Setting up ReAgent
 By and large you can follow the [installation guide](https://reagent.ai/installation.html#installation) provided with ReAgent. I do present a number of additional steps below. 
 
