@@ -14,7 +14,7 @@ The main interface is a commandline script called `reagent`. This uses `git` sty
 
 The rest of this readme will describe how to setup `ReAgent_workflow`, and how to work with it. 
 
-You can find the [technical documentation of the code here](https://htmlpreview.github.io/?https://github.com/ictinnovaties-zorg/ReAgent_workflow/blob/master/doc/ReAgent_workflow/index.html), this is mainly useful if you want to write your own Python scripts that work with `ReAgent`. 
+You can find the [technical documentation of the code here](https://htmlpreview.github.io/?https://github.com/ictinnovaties-zorg/ReAgent_workflow/blob/master/doc/ReAgent_workflow/index.html), this is mainly useful if you want to write your own Python scripts that work with `ReAgent`. The package also includes some example runs in the `exampple_runs` subdirectory. This typically involves a bash script which creates the runs, and a Jupyter Notebook for the interpretation. 
 
 # TL;DR
 Short example run from the command line (note that the example files are included in the `example_data` directory in the package):
@@ -84,6 +84,15 @@ This means that you either have not installed `ReAgent` using `pip install .`, o
 
 #### I get a `cannot find module xxxxx error`
 The installation instructions are not always rock solid, so there could be some missing libraries. Simply running `pip install xxxxx` in the conda environment where you run ReAgent from should often fix this issue. 
+
+#### How do I test the performance of a generated model (aka Policy)? 
+ReAgent_workflow currently does not provide a standard way of doing this as there is none. You need to write your own code that evaluates the generated PyTorch model. For the cartpole example I use throughout this readme this is done using:
+
+	python ml/rl/test/workflow/eval_cartpole.py -m outputs/model_* --softmax_temperature=0.35 --log_file=outputs/eval_output.txt
+
+This script would be the best starting point to make your own evaluation script. 
+
+Note that the script above uses a the cartpole *model* to evaluate. The problem ofcourse is that we are using ReAgent precisely because we do not have a model. Maybe you could split the data into testing and training as a solution, effectively doing some kind of crossvalidation. 
 
 # Setting up ReAgent
 By and large you can follow the [installation guide](https://reagent.ai/installation.html#installation) provided with ReAgent. I do present a number of additional steps below. 
