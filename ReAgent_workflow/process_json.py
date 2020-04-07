@@ -17,6 +17,9 @@ Implements a number of functions that read, dump and update the various json fil
 
 import json
 import logging
+import numpy as np
+import pandas as pd
+from tqdm.notebook import tqdm
 
 # TODO;
 # - Add reading and dumping of json config files
@@ -87,6 +90,144 @@ def replace_multiple_value_in_dict(input_dict, replace_dict):
     for k, v in replace_dict.items():
         input_dict = replace_value_in_dict(input_dict, k, v)
     return input_dict
+
+
+# --------- The functions below can be used to generate JSON input data from a Pandas DataFrame ---------
+def _get_funcs_for_var(df, grouping_vars, var, funcs):
+    res = df[grouping_vars + [var]].groupby(grouping_vars).agg(funcs)
+    res.columns = ['_'.join(feature) for feature in res.columns.to_series()]
+    return res
+
+def create_features(df, grouping_vars, var_func_combos):
+    '''
+    Create a set of features by taking `df`, grouping by `grouping_vars` and applying the functions and variabeles in `var_func_combos`
+    
+    For example:
+    
+        grouping_vars = ['path', 'timechunk_id']
+        var_func_combos = {'base_plasma_insuline': ['mean', 'max'], 
+                           'base_plasma_glucose': ['mean', 'min'],  
+                           'exogeneous_insuline': ['max']           
+                           }
+        all_vars_and_funcs = create_features(all_vip, grouping_vars, var_func_combos)
+    '''
+    return pd.concat([_get_funcs_for_var(
+                                        df, grouping_vars, var, funcs
+                                    ) for var, funcs in var_func_combos.items()], 
+                               axis='columns')
+
+# Calculate the possible actions
+def _find_nearest(array, value):
+    '''
+    From https://stackoverflow.com/a/2566508
+    '''
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return array[idx]
+
+def discretize_action_space(action_vector, possible_actions = None):
+    '''
+    Round the actions in `action_vector` to the nearest one in `possible_actions`. 
+    
+    If possible actions is not given, this will be calculate based on the 0.0-1.0 quantiles in steps of 0.1. 
+    '''
+    if possible_actions is None:
+        dummy_data, possible_actions = pd.qcut(action_vector, q = np.linspace(0,1,num=10), retbins=True)
+    rounded_action_vector = [_find_nearest(possible_actions, action) for action in action_vector]
+    if possible_actions is None:
+        return rounded_action_vector
+    else:
+        return possible_actions, rounded_action_vector
+
+def _create_reagent_state_vector(tuple_row, feature_names):
+    return {'state_features': dict(zip(feature_names, tuple_row[1:]))}
+
+def _create_reagent_record(row, feature_names, index_names, ds_value, mdp_id_var, 
+                           sequence_number_var, possible_actions, action_var, reward_var, 
+                           action_probability, indent=None):
+    dictlist = _create_reagent_state_vector(row, feature_names)
+    dictlist['ds'] = ds_value
+    index = row[0]
+    dictlist['mdp_id'] = index[index_names.index(mdp_id_var)]
+    dictlist['sequence_number'] = index[index_names.index(sequence_number_var)]
+    
+    dictlist['possible_actions'] = possible_actions
+    dictlist['action'] = str(index[index_names.index(action_var)])
+    assert dictlist['action'] in dictlist['possible_actions'], 'Action %s is not found in the list of possible actions' % dictlist['action']
+    
+    dictlist['reward'] = index[index_names.index(reward_var)]
+    dictlist['metrics'] = {"reward": dictlist['reward']}
+    
+    dictlist['action_probability'] = action_probability
+    return json.dumps(dictlist, indent=indent)
+
+def reagent_df_to_json_lines(df, ds_value, mdp_id_var, sequence_number_var, 
+                             possible_actions, action_var, reward_var, action_probability,  
+                             indent=None, progress=False, json_path=None):
+    '''
+    Convert the dataframe to the appropriate jsonlines data needed for ReAgent
+    
+    The goal is to produce something like the following JSON for each timestamp:
+    
+            {
+                "ds": "2019-01-01",
+                "mdp_id": "0",
+                "sequence_number": 0,
+                "state_features": {
+                    "0": -0.04456399381160736,
+                    "1": 0.04653909429907799,
+                    "2": 0.013269094750285149,
+                    "3": -0.020998265594244003
+                },
+                "action": "0",
+                "reward": 1.0,
+                "action_probability": 0.975,
+                "possible_actions": [
+                    "0",
+                    "1"
+                ],
+                "metrics": {
+                    "reward": 1.0
+                }
+            }
+    
+    where:
+    
+    - `ds` a unique id
+    - `mdp_id` episode id. A complete run of the 'game'
+    - `sequence_number` timestamp within the episode
+    - `state_features` state feature values for this timestamp
+    - `action` the action that was taken this timestamp
+    - `reward` the short term reward the given action yielded
+    
+    Args:
+        df (DataFrame): a pandas dataframe which contains the state per timestamp
+        ds_value (string): a string providing the unique ID of the dataset
+        mdp_id_var (string): which variable in the **index** of df provides the episode id
+        sequence_number_var (string): which variable in the **index** of df provides the timestamp
+        possible_actions (list): list of possible actions. This is static, not deduced from df.
+        action_var (string): which variable in the **index** of df provides the action. Note that this should be a value listed in `possible_actions`. 
+        indent (int): should newlines be introduced to nicely format the json. Primarily useful for debugging, not for dumping the data for ReAgent. 
+        progress (bool): should a progress bar be drawn
+        json_path (string): which path should the json be saved to. Default is `None`, which returns an array with jsonlines. 
+    '''
+    possible_actions = [str(action) for action in possible_actions]
+    if progress:
+        json_lines = [_create_reagent_record(
+                row, df.columns, df.index.names, ds_value, mdp_id_var, sequence_number_var, possible_actions, action_var, reward_var, action_probability, indent=indent
+           ) for row in tqdm(df.itertuples(), total=len(all_vars_and_funcs))]
+    else:
+        json_lines = [_create_reagent_record(
+                row, df.columns, df.index.names, ds_value, mdp_id_var, sequence_number_var, possible_actions, action_var, reward_var, action_probability, indent=indent
+           ) for row in df.itertuples()]
+    if json_path is None:
+        return json_lines
+    else:
+        with open(json_path, 'w') as json_file:
+            for json_line in json_lines:
+                json.dump(json_line, json_file)
+                json_file.write('\n')
+        return 'Dumped json data in %s' % json_path
 
 if __name__ == '__main__':
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.4" />
+<meta name="generator" content="pdoc 0.7.5" />
 <title>ReAgent_workflow.command_line API documentation</title>
 <meta name="description" content="This submodule hosts the command line interface of ReAgent_workflow. It uses the functions defined in the other submodules to actually control ReAgent …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
@@ -26,7 +26,19 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python"># Copyright 2020 Research group ICT innovations in Health Care, Windesheim University of Applied Sciences.
+<pre><code class="python"># Copyright 2020 Research group ICT innovations in Health Care, Windesheim University of Applied Sciences
+#
+# Licensed under the Apache License, Version 2.0 (the &#34;License&#34;);
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an &#34;AS IS&#34; BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 &#39;&#39;&#39;
 This submodule hosts the command line interface of ReAgent_workflow. It uses the functions defined in the other submodules to actually control ReAgent. 
 
@@ -93,6 +105,13 @@ def _get_run_settings(args):
     else:
         # Empty placeholder is no settings file is passed
         run_settings = {&#39;preprocessing&#39;: {}, &#39;training&#39;: {}}
+    # if a file was read, there is a chance either of the subsections is missing
+    # simply add an empty one if it is missing. 
+    if &#39;preprocessing&#39; not in run_settings.keys():
+        run_settings[&#39;preprocessing&#39;] = {}
+    if &#39;training&#39; not in run_settings.keys():
+        run_settings[&#39;training&#39;] = {}
+
     # merge --ts and --ps
     if args.ts is not None:
         # Merge settings from settings file with those passed via --ts on the command line
@@ -110,8 +129,20 @@ def _get_run_settings(args):
     return run_settings
 
 #====== PARSING INPUT ARGUMENTS =========
+init_ld = &#39;&#39;&#39;This clones the repository in REAGENT_LOCATION, copies in 
+the training data and builds the preprocessing JAR file using 
+Maven. Finally, it copies the run log into the directory 
+created by git. This log, run_activity.log, contains all 
+the activity that took place in the run.&#39;&#39;&#39;
+example_init=&#39;&#39;&#39;Example usage:
+
+    reagent init cartpole_run generated_cartpole_data.json --delete-old-run 
+&#39;&#39;&#39;
 def _parse_init(args):
-    parser = argparse.ArgumentParser(description=&#39;Initialize new ReAgent run&#39;)
+    parser = argparse.ArgumentParser(description=init_ld, usage=&#34;reagent init [-h] [-o] [-d] name training_data&#34;,
+            epilog=example_init,
+            formatter_class=argparse.RawDescriptionHelpFormatter
+            )
     parser.add_argument(&#39;name&#39;, help=&#39;Name of the run&#39;)
     parser.add_argument(&#39;training_data&#39;, help=&#39;Training data used for the run&#39;)
     parser.add_argument(&#39;-o&#39;, &#39;--delete-old-run&#39;, help=&#39;Delete the run in `name` if it already exists. &#39;, action=&#39;store_true&#39;)
@@ -127,8 +158,21 @@ def _parse_init(args):
 
     return init_args
 
+run_ld = &#39;&#39;&#39;Run ReAgent from the command line. 
+
+Note that if you want to pass multiple preprocessing 
+or training settings, you can call `--ps/ts` multiple times. &#39;&#39;&#39;
+example_run=&#39;&#39;&#39;Example usage: 
+
+    reagent run -r config.json --skip-preprocessing
+    reagent run -r config.json --s --ts learning_rate 0.1
+    reagent run -r config.json --s --ts learning_rate 0.1 --ts epochs 999
+&#39;&#39;&#39;
 def _parse_run(args):
-    parser = argparse.ArgumentParser(description=&#39;Run ReAgent&#39;)
+    parser = argparse.ArgumentParser(description=run_ld, 
+            usage=&#39;reagent run [-h] [-r RUN_SETTINGS] [-s] [-d] [--ps key value] [--ts key value]&#39;,
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+            epilog=example_run)
     parser.add_argument(&#39;-r&#39;, &#39;--run_settings&#39;, help=&#39;Path to a settings file containing the global settings for this run&#39;)
     parser.add_argument(&#39;-s&#39;, &#39;--skip-preprocessing&#39;, help=&#39;Skip preprocessing, and immediately launch the run &#39;, action=&#39;store_true&#39;)
     parser.add_argument(&#39;-d&#39;, &#39;--debug&#39;, help=&#39;Do not buffer the Python errors, useful during development&#39;, action=&#39;store_true&#39;)
@@ -140,6 +184,11 @@ def _parse_run(args):
 
 subcommand_mapping = {&#39;init&#39;: _parse_init, &#39;run&#39;: _parse_run}
 
+main_ld=&#39;&#39;&#39;A command line workflowmanager for ReAgent.&#39;&#39;&#39;
+extra_info=&#39;&#39;&#39;For more information, please see the help pages for the subcommands:
+    
+    reagent init -h
+    reagent run -h&#39;&#39;&#39;
 def parse_arguments(args):
     &#39;&#39;&#39;
     Parses the arguments passed from the command line. 
@@ -147,8 +196,10 @@ def parse_arguments(args):
     Args:
        args: the raw input args, most probably generated by `sys.argv`
     &#39;&#39;&#39;
-    parser = argparse.ArgumentParser(description=&#39;Interact with ReAgent: an offline Reinforcement Learning library&#39;)
-    parser.add_argument(&#39;command&#39;, help=&#39;Subcommand to run&#39;)
+    parser = argparse.ArgumentParser(description=main_ld,
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+            epilog=extra_info)
+    parser.add_argument(&#39;command&#39;, help=&#39;Subcommand to run, options are `init` or `run`.&#39;)
     subcommand = parser.parse_args(args[1:2])
     if subcommand.command not in subcommand_mapping.keys():
         print(&#39;Unknown subcommand: %s&#39; % subcommand.command)
@@ -269,8 +320,10 @@ if __name__ == &#39;__main__&#39;:
     Args:
        args: the raw input args, most probably generated by `sys.argv`
     &#39;&#39;&#39;
-    parser = argparse.ArgumentParser(description=&#39;Interact with ReAgent: an offline Reinforcement Learning library&#39;)
-    parser.add_argument(&#39;command&#39;, help=&#39;Subcommand to run&#39;)
+    parser = argparse.ArgumentParser(description=main_ld,
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+            epilog=extra_info)
+    parser.add_argument(&#39;command&#39;, help=&#39;Subcommand to run, options are `init` or `run`.&#39;)
     subcommand = parser.parse_args(args[1:2])
     if subcommand.command not in subcommand_mapping.keys():
         print(&#39;Unknown subcommand: %s&#39; % subcommand.command)
@@ -341,7 +394,7 @@ if __name__ == &#39;__main__&#39;:
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.5</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad()</script>

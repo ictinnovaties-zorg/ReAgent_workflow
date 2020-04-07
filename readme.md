@@ -17,7 +17,7 @@ The rest of this readme will describe how to setup `ReAgent_workflow`, and how t
 You can find the [technical documentation of the code here](https://htmlpreview.github.io/?https://github.com/ictinnovaties-zorg/ReAgent_workflow/blob/master/doc/ReAgent_workflow/index.html), this is mainly useful if you want to write your own Python scripts that work with `ReAgent`. 
 
 # TL;DR
-Short example run from the command line:
+Short example run from the command line (note that the example files are included in the `example_data` directory in the package):
 
     reagent init cartpole_run generated_cartpole_data.json --delete-old-run 
     cp example_full_run_config.json cartpole_run
@@ -94,9 +94,13 @@ If you run into a problem with one of the submodules not loading properly, [you 
     
     Once this environment is activated, you can run commands such as `conda install` or `pip install` to install all the required software. Note that before running ReAgent, you always need to activate the environment. 
 
-- I installed pytorch using `conda`:
+- I installed pytorch using `conda (note that pytoch itself is already installed as part of requirements.txt):
 
         conda install pytorch torchvision cudatoolkit=10.1 -c pytorch 
+
+- The install manual asks you to set `JAVA_HOME` using `dirname` and `which conda`. I suggest you use `which java` as this is much more robust when working in a conda env. If you do not use this, the `JAVA_HOME` will be set to the main anaconda dir, and not the one for the specific environment. 
+
+         export JAVA_HOME="$(dirname $(dirname -- `which java`))"    
 
 - The installation manual mentions not having to run pip again after updating the package, but this did not seems to work for me. So after:
 
@@ -110,20 +114,37 @@ If you run into a problem with one of the submodules not loading properly, [you 
 
 	    export REAGENT_LOCATION="/path/to/ReAgent"
 
-    to your `~/.bashrc` file.
+    to the environment variables file of your conda environmet. See [this link](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#macos-and-linux) how to do this. Practically, this is the contents of my files:
+    
+    **activate.d/env_vars.sh**
+    
+        #! /bin/sh
 
-## Installing ReAgent scripts
+        # Some extra stuff for ReAgent
+        export PATH="/usr/local/spark/bin:$PATH"
+        export JAVA_HOME="$(dirname $(dirname -- `which java`))"
+        export REAGENT_LOCATION="/my/location/of/reagent"
+        
+    **deactivate.d/env_vars.sh**
+    
+        unset JAVA_HOME
+        unset REAGENT_LOCATION
+        
+    Notice that I don't unset `PATH`. So spark will continue to be on the PATH even if you deactivate the ReAgent environment. This is something I'd like to fix in the future. 
+
+
+## Installing ReAgent_workflow
 In order to get the scripts working you need to:
 
 - Clone the repo
 - Install the package using:
 
-        cd ReAgent_scripts
+        cd ReAgent_workflow
         pip install .
 
 This will install the package and the command line script called `reagent`. 
 
-## Running ReAgent
+# Running ReAgent from the commandline
 Setting up a new ReAgent run is done using the `init` subcommand:
 
     reagent init run_name bla.json
@@ -210,6 +231,29 @@ This will not run the preprocessing, and retrain the model with the new learning
     reagent run -r example_full_run_config.json --ts learning_rate 0.001
 
 which yields the exact same result. 
+
+# Running ReAgent_workflow from within Python
+The main supported interface currently is the commandline interface. For the brave of heart, the [technical documentation of the code here](https://htmlpreview.github.io/?https://github.com/ictinnovaties-zorg/ReAgent_workflow/blob/master/doc/ReAgent_workflow/index.html) points you towards the underlying Python functions. You could use this to create and manage ReAgent runs from within Python. 
+
+There are a few functions that you can only run from within Python, these are listed here:
+
+## Generate ReAgent JSON from a pandas dataframe
+One of the challenges we have is to generate the required [JSONlines](http://jsonlines.org/) data for ReAgent. The function `reagent_df_to_json_lines` facilitates with this challenge. It transforms the following Pandas DataFrame:
+
+![](pics/pandas_df.png)
+
+to a list with the required json. 
+
+![](pics/json_lines.png)
+
+A number of support functions help out with generating the input pandas DataFrame:
+
+- `create_features` aggregate over a set of grouping variables and summary functions.
+- `discretize_action_space` take a list of numbers representing actions and return a discretized version. 
+
+The details of the functions can be found in the [technical documentation](https://htmlpreview.github.io/?https://github.com/ictinnovaties-zorg/ReAgent_workflow/blob/master/doc/ReAgent_workflow/index.html), under the `process_json` submodule. Importing any of the functions is done like this:
+
+    from ReAgent_workflow.process_json import create_features
 
 # Copyright
 Copyright 2020 Research group ICT innovations in Health Care, Windesheim University of Applied Sciences. 

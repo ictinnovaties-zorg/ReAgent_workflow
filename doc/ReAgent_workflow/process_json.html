@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.4" />
+<meta name="generator" content="pdoc 0.7.5" />
 <title>ReAgent_workflow.process_json API documentation</title>
 <meta name="description" content="Implements a number of functions that read, dump and update the various json files. Mainly used to work with ReAgent config files." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
@@ -25,13 +25,28 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python"># Copyright 2020 Research group ICT innovations in Health Care, Windesheim University of Applied Sciences.
+<pre><code class="python"># Copyright 2020 Research group ICT innovations in Health Care, Windesheim University of Applied Sciences
+#
+# Licensed under the Apache License, Version 2.0 (the &#34;License&#34;);
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an &#34;AS IS&#34; BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 &#39;&#39;&#39;
 Implements a number of functions that read, dump and update the various json files. Mainly used to work with ReAgent config files.
 &#39;&#39;&#39;
 
 import json
 import logging
+import numpy as np
+import pandas as pd
+from tqdm.notebook import tqdm
 
 # TODO;
 # - Add reading and dumping of json config files
@@ -103,6 +118,144 @@ def replace_multiple_value_in_dict(input_dict, replace_dict):
         input_dict = replace_value_in_dict(input_dict, k, v)
     return input_dict
 
+
+# --------- The functions below can be used to generate JSON input data from a Pandas DataFrame ---------
+def _get_funcs_for_var(df, grouping_vars, var, funcs):
+    res = df[grouping_vars + [var]].groupby(grouping_vars).agg(funcs)
+    res.columns = [&#39;_&#39;.join(feature) for feature in res.columns.to_series()]
+    return res
+
+def create_features(df, grouping_vars, var_func_combos):
+    &#39;&#39;&#39;
+    Create a set of features by taking `df`, grouping by `grouping_vars` and applying the functions and variabeles in `var_func_combos`
+    
+    For example:
+    
+        grouping_vars = [&#39;path&#39;, &#39;timechunk_id&#39;]
+        var_func_combos = {&#39;base_plasma_insuline&#39;: [&#39;mean&#39;, &#39;max&#39;], 
+                           &#39;base_plasma_glucose&#39;: [&#39;mean&#39;, &#39;min&#39;],  
+                           &#39;exogeneous_insuline&#39;: [&#39;max&#39;]           
+                           }
+        all_vars_and_funcs = create_features(all_vip, grouping_vars, var_func_combos)
+    &#39;&#39;&#39;
+    return pd.concat([_get_funcs_for_var(
+                                        df, grouping_vars, var, funcs
+                                    ) for var, funcs in var_func_combos.items()], 
+                               axis=&#39;columns&#39;)
+
+# Calculate the possible actions
+def _find_nearest(array, value):
+    &#39;&#39;&#39;
+    From https://stackoverflow.com/a/2566508
+    &#39;&#39;&#39;
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return array[idx]
+
+def discretize_action_space(action_vector, possible_actions = None):
+    &#39;&#39;&#39;
+    Round the actions in `action_vector` to the nearest one in `possible_actions`. 
+    
+    If possible actions is not given, this will be calculate based on the 0.0-1.0 quantiles in steps of 0.1. 
+    &#39;&#39;&#39;
+    if possible_actions is None:
+        dummy_data, possible_actions = pd.qcut(action_vector, q = np.linspace(0,1,num=10), retbins=True)
+    rounded_action_vector = [_find_nearest(possible_actions, action) for action in action_vector]
+    if possible_actions is None:
+        return rounded_action_vector
+    else:
+        return possible_actions, rounded_action_vector
+
+def _create_reagent_state_vector(tuple_row, feature_names):
+    return {&#39;state_features&#39;: dict(zip(feature_names, tuple_row[1:]))}
+
+def _create_reagent_record(row, feature_names, index_names, ds_value, mdp_id_var, 
+                           sequence_number_var, possible_actions, action_var, reward_var, 
+                           action_probability, indent=None):
+    dictlist = _create_reagent_state_vector(row, feature_names)
+    dictlist[&#39;ds&#39;] = ds_value
+    index = row[0]
+    dictlist[&#39;mdp_id&#39;] = index[index_names.index(mdp_id_var)]
+    dictlist[&#39;sequence_number&#39;] = index[index_names.index(sequence_number_var)]
+    
+    dictlist[&#39;possible_actions&#39;] = possible_actions
+    dictlist[&#39;action&#39;] = str(index[index_names.index(action_var)])
+    assert dictlist[&#39;action&#39;] in dictlist[&#39;possible_actions&#39;], &#39;Action %s is not found in the list of possible actions&#39; % dictlist[&#39;action&#39;]
+    
+    dictlist[&#39;reward&#39;] = index[index_names.index(reward_var)]
+    dictlist[&#39;metrics&#39;] = {&#34;reward&#34;: dictlist[&#39;reward&#39;]}
+    
+    dictlist[&#39;action_probability&#39;] = action_probability
+    return json.dumps(dictlist, indent=indent)
+
+def reagent_df_to_json_lines(df, ds_value, mdp_id_var, sequence_number_var, 
+                             possible_actions, action_var, reward_var, action_probability,  
+                             indent=None, progress=False, json_path=None):
+    &#39;&#39;&#39;
+    Convert the dataframe to the appropriate jsonlines data needed for ReAgent
+    
+    The goal is to produce something like the following JSON for each timestamp:
+    
+            {
+                &#34;ds&#34;: &#34;2019-01-01&#34;,
+                &#34;mdp_id&#34;: &#34;0&#34;,
+                &#34;sequence_number&#34;: 0,
+                &#34;state_features&#34;: {
+                    &#34;0&#34;: -0.04456399381160736,
+                    &#34;1&#34;: 0.04653909429907799,
+                    &#34;2&#34;: 0.013269094750285149,
+                    &#34;3&#34;: -0.020998265594244003
+                },
+                &#34;action&#34;: &#34;0&#34;,
+                &#34;reward&#34;: 1.0,
+                &#34;action_probability&#34;: 0.975,
+                &#34;possible_actions&#34;: [
+                    &#34;0&#34;,
+                    &#34;1&#34;
+                ],
+                &#34;metrics&#34;: {
+                    &#34;reward&#34;: 1.0
+                }
+            }
+    
+    where:
+    
+    - `ds` a unique id
+    - `mdp_id` episode id. A complete run of the &#39;game&#39;
+    - `sequence_number` timestamp within the episode
+    - `state_features` state feature values for this timestamp
+    - `action` the action that was taken this timestamp
+    - `reward` the short term reward the given action yielded
+    
+    Args:
+        df (DataFrame): a pandas dataframe which contains the state per timestamp
+        ds_value (string): a string providing the unique ID of the dataset
+        mdp_id_var (string): which variable in the **index** of df provides the episode id
+        sequence_number_var (string): which variable in the **index** of df provides the timestamp
+        possible_actions (list): list of possible actions. This is static, not deduced from df.
+        action_var (string): which variable in the **index** of df provides the action. Note that this should be a value listed in `possible_actions`. 
+        indent (int): should newlines be introduced to nicely format the json. Primarily useful for debugging, not for dumping the data for ReAgent. 
+        progress (bool): should a progress bar be drawn
+        json_path (string): which path should the json be saved to. Default is `None`, which returns an array with jsonlines. 
+    &#39;&#39;&#39;
+    possible_actions = [str(action) for action in possible_actions]
+    if progress:
+        json_lines = [_create_reagent_record(
+                row, df.columns, df.index.names, ds_value, mdp_id_var, sequence_number_var, possible_actions, action_var, reward_var, action_probability, indent=indent
+           ) for row in tqdm(df.itertuples(), total=len(all_vars_and_funcs))]
+    else:
+        json_lines = [_create_reagent_record(
+                row, df.columns, df.index.names, ds_value, mdp_id_var, sequence_number_var, possible_actions, action_var, reward_var, action_probability, indent=indent
+           ) for row in df.itertuples()]
+    if json_path is None:
+        return json_lines
+    else:
+        with open(json_path, &#39;w&#39;) as json_file:
+            for json_line in json_lines:
+                json.dump(json_line, json_file)
+                json_file.write(&#39;\n&#39;)
+        return &#39;Dumped json data in %s&#39; % json_path
+
 if __name__ == &#39;__main__&#39;:
 
     def run_test(input_dict, key, new_value):
@@ -131,6 +284,67 @@ if __name__ == &#39;__main__&#39;:
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="ReAgent_workflow.process_json.create_features"><code class="name flex">
+<span>def <span class="ident">create_features</span></span>(<span>df, grouping_vars, var_func_combos)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Create a set of features by taking <code>df</code>, grouping by <code>grouping_vars</code> and applying the functions and variabeles in <code>var_func_combos</code></p>
+<p>For example:</p>
+<pre><code>grouping_vars = ['path', 'timechunk_id']
+var_func_combos = {'base_plasma_insuline': ['mean', 'max'], 
+                   'base_plasma_glucose': ['mean', 'min'],  
+                   'exogeneous_insuline': ['max']           
+                   }
+all_vars_and_funcs = create_features(all_vip, grouping_vars, var_func_combos)
+</code></pre></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_features(df, grouping_vars, var_func_combos):
+    &#39;&#39;&#39;
+    Create a set of features by taking `df`, grouping by `grouping_vars` and applying the functions and variabeles in `var_func_combos`
+    
+    For example:
+    
+        grouping_vars = [&#39;path&#39;, &#39;timechunk_id&#39;]
+        var_func_combos = {&#39;base_plasma_insuline&#39;: [&#39;mean&#39;, &#39;max&#39;], 
+                           &#39;base_plasma_glucose&#39;: [&#39;mean&#39;, &#39;min&#39;],  
+                           &#39;exogeneous_insuline&#39;: [&#39;max&#39;]           
+                           }
+        all_vars_and_funcs = create_features(all_vip, grouping_vars, var_func_combos)
+    &#39;&#39;&#39;
+    return pd.concat([_get_funcs_for_var(
+                                        df, grouping_vars, var, funcs
+                                    ) for var, funcs in var_func_combos.items()], 
+                               axis=&#39;columns&#39;)</code></pre>
+</details>
+</dd>
+<dt id="ReAgent_workflow.process_json.discretize_action_space"><code class="name flex">
+<span>def <span class="ident">discretize_action_space</span></span>(<span>action_vector, possible_actions=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Round the actions in <code>action_vector</code> to the nearest one in <code>possible_actions</code>. </p>
+<p>If possible actions is not given, this will be calculate based on the 0.0-1.0 quantiles in steps of 0.1.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def discretize_action_space(action_vector, possible_actions = None):
+    &#39;&#39;&#39;
+    Round the actions in `action_vector` to the nearest one in `possible_actions`. 
+    
+    If possible actions is not given, this will be calculate based on the 0.0-1.0 quantiles in steps of 0.1. 
+    &#39;&#39;&#39;
+    if possible_actions is None:
+        dummy_data, possible_actions = pd.qcut(action_vector, q = np.linspace(0,1,num=10), retbins=True)
+    rounded_action_vector = [_find_nearest(possible_actions, action) for action in action_vector]
+    if possible_actions is None:
+        return rounded_action_vector
+    else:
+        return possible_actions, rounded_action_vector</code></pre>
+</details>
+</dd>
 <dt id="ReAgent_workflow.process_json.dump_json_and_log_content"><code class="name flex">
 <span>def <span class="ident">dump_json_and_log_content</span></span>(<span>config, path, prefix='Config')</span>
 </code></dt>
@@ -164,6 +378,137 @@ if __name__ == &#39;__main__&#39;:
         logging.info(line)
     with open(path, &#34;w&#34;) as write_file:
         json.dump(config, write_file, indent=2)</code></pre>
+</details>
+</dd>
+<dt id="ReAgent_workflow.process_json.reagent_df_to_json_lines"><code class="name flex">
+<span>def <span class="ident">reagent_df_to_json_lines</span></span>(<span>df, ds_value, mdp_id_var, sequence_number_var, possible_actions, action_var, reward_var, action_probability, indent=None, progress=False, json_path=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Convert the dataframe to the appropriate jsonlines data needed for ReAgent</p>
+<p>The goal is to produce something like the following JSON for each timestamp:</p>
+<pre><code>    {
+        "ds": "2019-01-01",
+        "mdp_id": "0",
+        "sequence_number": 0,
+        "state_features": {
+            "0": -0.04456399381160736,
+            "1": 0.04653909429907799,
+            "2": 0.013269094750285149,
+            "3": -0.020998265594244003
+        },
+        "action": "0",
+        "reward": 1.0,
+        "action_probability": 0.975,
+        "possible_actions": [
+            "0",
+            "1"
+        ],
+        "metrics": {
+            "reward": 1.0
+        }
+    }
+</code></pre>
+<p>where:</p>
+<ul>
+<li><code>ds</code> a unique id</li>
+<li><code>mdp_id</code> episode id. A complete run of the 'game'</li>
+<li><code>sequence_number</code> timestamp within the episode</li>
+<li><code>state_features</code> state feature values for this timestamp</li>
+<li><code>action</code> the action that was taken this timestamp</li>
+<li><code>reward</code> the short term reward the given action yielded</li>
+</ul>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>DataFrame</code></dt>
+<dd>a pandas dataframe which contains the state per timestamp</dd>
+<dt><strong><code>ds_value</code></strong> :&ensp;<code>string</code></dt>
+<dd>a string providing the unique ID of the dataset</dd>
+<dt><strong><code>mdp_id_var</code></strong> :&ensp;<code>string</code></dt>
+<dd>which variable in the <strong>index</strong> of df provides the episode id</dd>
+<dt><strong><code>sequence_number_var</code></strong> :&ensp;<code>string</code></dt>
+<dd>which variable in the <strong>index</strong> of df provides the timestamp</dd>
+<dt><strong><code>possible_actions</code></strong> :&ensp;<code>list</code></dt>
+<dd>list of possible actions. This is static, not deduced from df.</dd>
+<dt><strong><code>action_var</code></strong> :&ensp;<code>string</code></dt>
+<dd>which variable in the <strong>index</strong> of df provides the action. Note that this should be a value listed in <code>possible_actions</code>. </dd>
+<dt><strong><code>indent</code></strong> :&ensp;<code>int</code></dt>
+<dd>should newlines be introduced to nicely format the json. Primarily useful for debugging, not for dumping the data for ReAgent. </dd>
+<dt><strong><code>progress</code></strong> :&ensp;<code>bool</code></dt>
+<dd>should a progress bar be drawn</dd>
+<dt><strong><code>json_path</code></strong> :&ensp;<code>string</code></dt>
+<dd>which path should the json be saved to. Default is <code>None</code>, which returns an array with jsonlines.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reagent_df_to_json_lines(df, ds_value, mdp_id_var, sequence_number_var, 
+                             possible_actions, action_var, reward_var, action_probability,  
+                             indent=None, progress=False, json_path=None):
+    &#39;&#39;&#39;
+    Convert the dataframe to the appropriate jsonlines data needed for ReAgent
+    
+    The goal is to produce something like the following JSON for each timestamp:
+    
+            {
+                &#34;ds&#34;: &#34;2019-01-01&#34;,
+                &#34;mdp_id&#34;: &#34;0&#34;,
+                &#34;sequence_number&#34;: 0,
+                &#34;state_features&#34;: {
+                    &#34;0&#34;: -0.04456399381160736,
+                    &#34;1&#34;: 0.04653909429907799,
+                    &#34;2&#34;: 0.013269094750285149,
+                    &#34;3&#34;: -0.020998265594244003
+                },
+                &#34;action&#34;: &#34;0&#34;,
+                &#34;reward&#34;: 1.0,
+                &#34;action_probability&#34;: 0.975,
+                &#34;possible_actions&#34;: [
+                    &#34;0&#34;,
+                    &#34;1&#34;
+                ],
+                &#34;metrics&#34;: {
+                    &#34;reward&#34;: 1.0
+                }
+            }
+    
+    where:
+    
+    - `ds` a unique id
+    - `mdp_id` episode id. A complete run of the &#39;game&#39;
+    - `sequence_number` timestamp within the episode
+    - `state_features` state feature values for this timestamp
+    - `action` the action that was taken this timestamp
+    - `reward` the short term reward the given action yielded
+    
+    Args:
+        df (DataFrame): a pandas dataframe which contains the state per timestamp
+        ds_value (string): a string providing the unique ID of the dataset
+        mdp_id_var (string): which variable in the **index** of df provides the episode id
+        sequence_number_var (string): which variable in the **index** of df provides the timestamp
+        possible_actions (list): list of possible actions. This is static, not deduced from df.
+        action_var (string): which variable in the **index** of df provides the action. Note that this should be a value listed in `possible_actions`. 
+        indent (int): should newlines be introduced to nicely format the json. Primarily useful for debugging, not for dumping the data for ReAgent. 
+        progress (bool): should a progress bar be drawn
+        json_path (string): which path should the json be saved to. Default is `None`, which returns an array with jsonlines. 
+    &#39;&#39;&#39;
+    possible_actions = [str(action) for action in possible_actions]
+    if progress:
+        json_lines = [_create_reagent_record(
+                row, df.columns, df.index.names, ds_value, mdp_id_var, sequence_number_var, possible_actions, action_var, reward_var, action_probability, indent=indent
+           ) for row in tqdm(df.itertuples(), total=len(all_vars_and_funcs))]
+    else:
+        json_lines = [_create_reagent_record(
+                row, df.columns, df.index.names, ds_value, mdp_id_var, sequence_number_var, possible_actions, action_var, reward_var, action_probability, indent=indent
+           ) for row in df.itertuples()]
+    if json_path is None:
+        return json_lines
+    else:
+        with open(json_path, &#39;w&#39;) as json_file:
+            for json_line in json_lines:
+                json.dump(json_line, json_file)
+                json_file.write(&#39;\n&#39;)
+        return &#39;Dumped json data in %s&#39; % json_path</code></pre>
 </details>
 </dd>
 <dt id="ReAgent_workflow.process_json.replace_multiple_value_in_dict"><code class="name flex">
@@ -284,7 +629,10 @@ as the ReAgent config files are quite limited in sie.</li>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="ReAgent_workflow.process_json.create_features" href="#ReAgent_workflow.process_json.create_features">create_features</a></code></li>
+<li><code><a title="ReAgent_workflow.process_json.discretize_action_space" href="#ReAgent_workflow.process_json.discretize_action_space">discretize_action_space</a></code></li>
 <li><code><a title="ReAgent_workflow.process_json.dump_json_and_log_content" href="#ReAgent_workflow.process_json.dump_json_and_log_content">dump_json_and_log_content</a></code></li>
+<li><code><a title="ReAgent_workflow.process_json.reagent_df_to_json_lines" href="#ReAgent_workflow.process_json.reagent_df_to_json_lines">reagent_df_to_json_lines</a></code></li>
 <li><code><a title="ReAgent_workflow.process_json.replace_multiple_value_in_dict" href="#ReAgent_workflow.process_json.replace_multiple_value_in_dict">replace_multiple_value_in_dict</a></code></li>
 <li><code><a title="ReAgent_workflow.process_json.replace_value_in_dict" href="#ReAgent_workflow.process_json.replace_value_in_dict">replace_value_in_dict</a></code></li>
 </ul>
@@ -293,7 +641,7 @@ as the ReAgent config files are quite limited in sie.</li>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.5</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad()</script>
