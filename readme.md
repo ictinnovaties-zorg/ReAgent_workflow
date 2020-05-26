@@ -120,6 +120,8 @@ If you run into a problem with one of the submodules not loading properly, [you 
 
          export JAVA_HOME="$(dirname $(dirname -- `which java`))"    
 
+    be sure to install a JAVA JDK (not simply JRE), and install version 8. 
+
 - The installation manual mentions not having to run pip again after updating the package, but this did not seems to work for me. So after:
 
         git pull origin master
